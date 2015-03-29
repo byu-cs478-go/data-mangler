@@ -67,11 +67,40 @@ def boundingBoxSize(points):
 
     return boundingBoxSize
 
+def plot():
+    a = [0.8, 0.6, 0.4, 0.9]
+    b = [0.6, 0.4, 0.8, 0.5]
+
+    c = [-0.4, -0.8, -0.2, -0.9]
+    d = [-0.2, -0.6, 0.1, -0.8]
+
+    print 'plot'
+    plt.figure('Linear')
+    plt.scatter(a, b, color='blue')
+    plt.scatter(c, d, color='red')
+    plt.show()
+
+
+
+
 def _main():
     points = [(1,1), (3,6), (2,3), (4,5)]
     area = boundingBoxSize(points)
     
-    print centerOfMass(points)
+    # print centerOfMass(points)
+
+    # plot()
+    a = [0.8, 0.6, 0.4, 0.9]
+    b = [0.6, 0.4, 0.8, 0.5]
+
+    c = [-0.4, -0.8, -0.2, -0.9]
+    d = [-0.2, -0.6, 0.1, -0.8]
+
+    print 'plot'
+    plt.figure('Linear')
+    plt.scatter(a, b, color='blue')
+    plt.scatter(c, d, color='red')
+    plt.show()
 
 
 _main()
