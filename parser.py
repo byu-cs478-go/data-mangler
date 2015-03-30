@@ -9,7 +9,8 @@ def isOnBoard(loc):
     return loc[0] >= 0 and loc[0] < 19 and loc[1] >=0 and loc[1] < 19
 
 #Protected liberties
-
+def protectedLiberties():
+    return null
 
 #Auto-atari liberties
 def autoAtariLiberties():
