@@ -12,6 +12,9 @@ import subprocess
 
 def sgfarray_metadata_read():
 
+def sgf_tree_build():
+    pass
+
 def sgfarray_step(old, sgfstr):
     
 
