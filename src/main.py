@@ -95,8 +95,8 @@ def sgfstr_states_gen(instr):
         elif x == 'B':
             if prop[0] == None:
                 prop[0] = -1
-        # TODO Does not handle capital grid coordinates.
-        elif x in (a,t):
+        # TODO Uncertain syntax. Does not handle capital grid coordinates.
+        elif ord(x) in range(ord(a), ord(t)+1):
             if prop[0] != None:
                 if prop[1] == None:
                     prop[1] = ord(x) - 96
