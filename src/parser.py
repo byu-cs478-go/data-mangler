@@ -154,6 +154,32 @@ def placeStones(board, black, white):
     for p in white:
         board[p[1]][p[0]] = 1
 
+def buildGroup(board, color, loc, group):
+    if not isOnBoard(loc) or board[loc[0],loc[1]] != color or loc in group:
+        return group
+    group.add(loc)
+    # up
+    group.union(buildGroup(board,color,(loc[0] + 1,loc[1]),group))
+    # down
+    group.union(buildGroup(board,color,(loc[0] - 1,loc[1]),group))
+    # left
+    group.union(buildGroup(board,color,(loc[0],loc[1] - 1),group))
+    # right
+    group.union(buildGroup(board,color,(loc[0],loc[1] + 1),group)) 
+
+def getGroups(board):
+    groups = []
+    for i in range(len(board)):
+        for j in range(len(board[i])):
+            color = board[i][j]
+            if color == -1 or color == 1:
+                loc = (i,j)
+                for group in groups:
+                    if loc not in group:    
+                        groups.push(buildGroup(board, color, loc, set()))
+                
+    
+    return list(groups)
 
 def _main():
     board = initBoard(19, 19)
@@ -162,7 +188,8 @@ def _main():
     white = [(2,3), (1,2), (3,4), (1,4), (2,5)]
     placeStones(board, black, white)
 
-    print localMajority(board, black)
+    print getGroups(board)
+
     showBoard(board)
 
 
