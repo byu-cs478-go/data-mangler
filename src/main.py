@@ -24,26 +24,24 @@ def sgfstr_states_gen(instr):
     boards = [sgfboard_empty_gen()]
 
     # TODO Consume metadata?
-
-    # TODO Implement rules.
+    start = instr.find(';', instr.find(';') + 1)
 
     prop = [None, None, None]
     
-    for x in instr:
+    for x in instr[start:]:
         # Ignore whitespace.
         if   x == ' ' or x == '\t' or x == '\n':
             pass
 
         # Syntax characters.
         elif x == ';':
-            pass
+            boards.append(copy.deepcopy(boards[-1]))
         elif x == '[':
             pass
         elif x == ']':
             if prop[0] != None:
-                newboard = copy.deepcopy(boards[-1])
-                newboard[prop[1]][prop[2]] = prop[0]
-                boards.append(newboard)
+                boards[-1][prop[1]][prop[2]] = prop[0]
+                # TODO Apply the rules here?
                 prop = [None, None, None]
         elif x == '(':
             pass
@@ -53,7 +51,8 @@ def sgfstr_states_gen(instr):
             # else:
             break
 
-        # White and Black move processing.
+        # White and Black move processing. TODO This also detects
+        # properties with W or B in them.
         elif x == 'W':
             if prop[0] == None:
                 prop[0] = 1
