@@ -15,73 +15,36 @@ SAMPLERATE = 1
 
 
 
-def sgf_node_parse(nodestr):
-    pass
-
-def sgfarray_metadata_read():
-    pass
-
-def sgf_tree_build():
-    pass
-
-def sgf_step_read(old, sgfstr):
-    pass
-
-def sgf_done_read(sgfstr)
-
-def sgf_process(sgfstr):
-    # Get the states in the game that will be analyzed.
-    states = sgf_states_get()
-
-    # Run the analysis functions on the states.
-    for state in states:
-        pass
-
-
-
 def sgfboard_empty_gen():
     return [[0 for j in range (19)] for i in range(19)]
-
-
-
-# def sgfstr_sgfboard_step(instr, oldboard):
-#     newboard = copy.deepcopy(oldboard)
-
-#     tmpstr = instr.lstrip()
-
-#     # TODO Use a dict here? Assumes that lettering is
-#     # lowercase. Assumes no spaces inside property. Is orientation
-#     # going to be an issue?
-#     if   tmpstr[0] == 'W':
-#         newboard[ord(tmpstr[2]) - 96][ord(tmpstr[3]) - 96] = 1
-#     elif tmpstr[1] == 'B':
-#         newboard[ord(tmpstr[2]) - 96][ord(tmpstr[3]) - 96] = -1
-#     elif:
-#         return None
-#     else:
-#         # TODO Add additional diagnostic info. Global (cannot be set
-#         # from?) variables?
-#         sys.exit("Error: Unrecognized property.")
 
 
 
 def sgfstr_states_gen(instr):
     boards = [sgfboard_empty_gen()]
 
+    # TODO Consume metadata?
+
+    # TODO Implement rules.
+
     prop = [None, None, None]
     
     for x in instr:
+        # Ignore whitespace.
         if   x == ' ' or x == '\t' or x == '\n':
             pass
+
+        # Syntax characters.
         elif x == ';':
             pass
         elif x == '[':
             pass
         elif x == ']':
-            newboard = copy.deepcopy(boards[-1])
-            newboard[prop[1]][prop[2]] = prop[0]
-            boards.append(newboard)
-            prop = [None, None, None]    
+            if prop[0] != None:
+                newboard = copy.deepcopy(boards[-1])
+                newboard[prop[1]][prop[2]] = prop[0]
+                boards.append(newboard)
+                prop = [None, None, None]
         elif x == '(':
             pass
         elif x == ')':
@@ -89,6 +52,8 @@ def sgfstr_states_gen(instr):
             #     sys.exit("Error: Premature property end.")
             # else:
             break
+
+        # White and Black move processing.
         elif x == 'W':
             if prop[0] == None:
                 prop[0] = 1
@@ -104,21 +69,22 @@ def sgfstr_states_gen(instr):
                     prop[2] = ord(x) - 96
                 else:
                     sys.exit("Error: Too many coordinates in property.")
+
+        # Fallthrough for characters we don't recognize or don't care about.
         else:
-            sys.exit("Error: Parser broken.")
+            # Don't recognize (outside of a W or B property).
+            if prop[0] == None:
+                sys.exit("Error: Parser unable to cope with file.")
+            # Don't care (everywhere else).
+            else:
+                pass
 
     return boards
 
 
 
 def sgfstr_sample(instr):
-    # TODO Consume metadata.
-
-    states = [sgfboard_empty_gen()]
-
-    while states[-1] != None:
-        states.append(sgf_step_read(instr, states[-1]))
-
+    boards = sgfstr_boards_gen(instr)
     inc = floor((len(states)-1)/(SAMPLERATE + 1))
     return [states[x] for x in range(inc,(len(states)-1),inc)]
 
