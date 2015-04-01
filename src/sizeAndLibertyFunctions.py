@@ -76,7 +76,7 @@ def getFirstOrderLiberties(board, groups):
         group = groups[i]
         liberties = {}
         for j in range(0, len(group)):
-            loc = group[i]
+            loc = group[j]
             # up
             if isOnBoard((loc[0] + 1, loc[1])) and board[loc[0]][loc[1]] == 0:
                 liberties[(loc[0] + 1, loc[1])] = True
@@ -99,7 +99,7 @@ def getSecondOrderLiberties(board, groups, firstOrderLiberties):
         group = groups[i]
         liberties = {}
         for j in range(0, len(group)):
-            loc = group[i]
+            loc = group[j]
             # up
             if isOnBoard((loc[0] + 1, loc[1])) and not firstOrderLiberties[i][(loc[0] + 1, loc[1])] and board[loc[0] + 1][loc[1]] == 0:
                 liberties[(loc[0] + 1, loc[1])] = True
@@ -122,7 +122,7 @@ def getThirdOrderLiberties(board, groups, firstOrderLiberties, secondOrderLibert
         group = groups[i]
         liberties = {}
         for j in range(0, len(group)):
-            loc = group[i]
+            loc = group[j]
             # up
             if isOnBoard((loc[0] + 1, loc[1])) and not firstOrderLiberties[i][(loc[0] + 1, loc[1])] and not secondOrderLiberties[i][(loc[0] + 1, loc[1])] and board[loc[0] + 1][loc[1]] == 0:
                 liberties[(loc[0] + 1, loc[1])] = True
