@@ -97,9 +97,8 @@ def getSecondOrderLiberties(board, groups, firstOrderLiberties):
     libertiesLists = []    
     for i in range(0, len(firstOrderLiberties)):
         fol = firstOrderLiberties[i]
-        liberties = set
-        for j in range(0, len(fol)):
-            loc = fol[j]
+        liberties = set()
+        for loc in fol:
             # up
             if isOnBoard((loc[0] + 1, loc[1])) and (loc[0] + 1, loc[1]) not in firstOrderLiberties[i] and board[loc[0] + 1][loc[1]] == 0:
                 liberties.add((loc[0] + 1, loc[1]))
@@ -121,8 +120,7 @@ def getThirdOrderLiberties(board, groups, firstOrderLiberties, secondOrderLibert
     for i in range(0, len(secondOrderLiberties)):
         sol = secondOrderLiberties[i]
         liberties = set()
-        for j in range(0, len(sol)):
-            loc = sol[j]
+        for loc in sol:
             # up
             if isOnBoard((loc[0] + 1, loc[1])) and (loc[0] + 1, loc[1]) not in firstOrderLiberties[i] and (loc[0] + 1, loc[1]) not in secondOrderLiberties[i] and board[loc[0] + 1][loc[1]] == 0:
                 liberties.add((loc[0] + 1, loc[1]))
@@ -144,4 +142,9 @@ def getLiberties(board, groups):
     secondOrderLiberties = getSecondOrderLiberties(board, groups, firstOrderLiberties)
     thirdOrderLiberties = getThirdOrderLiberties(board, groups, firstOrderLiberties, secondOrderLiberties)
     
-    return (len(firstOrderLiberties), len(secondOrderLiberties), len(thirdOrderLiberties))
+    libertiesList = []
+    for i in range(len(groups)):
+        libertiesList.append((len(firstOrderLiberties[i]), len(secondOrderLiberties[i]), len(thirdOrderLiberties[i])))
+        
+    return libertiesList
+    
