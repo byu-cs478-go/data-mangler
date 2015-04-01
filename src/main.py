@@ -7,7 +7,8 @@ import copy
 
 # This header goes at the top of the generated .arff file. It includes
 # the attribute specifiers and tags up to '@data'.
-ARFFHEADER = ("")
+ARFFHEADER = ("@attribute groupsize NUMERIC"
+              "@data")
 
 # This variable controls the number of board samples taken from a
 # given game.
@@ -15,18 +16,67 @@ SAMPLERATE = 1
 
 
 
-def sgfboard_empty_gen():
-    return [[0 for j in range (19)] for i in range(19)]
+def sgfboard_empty_gen(x, y):
+    return [[0 for j in range (x)] for i in range(y)]
 
 
 
 def sgfboard_merge(board, groups, s0, s1):
-    pass
+    # TODO Could we rework this to make it more efficient (by
+    # returning and caching indices or something)
+
+    # TODO Would an initial check to see if s0 and s1 are in the same group save time?
+
+    # Initial values for s0group and s1group .
+    s0group = None
+    s1group = None
+
+    # Find the indices of the groups containing s0 and s1.
+    for x in groups:
+        if s0 in x:
+            # TODO is this a shallow copy?
+            s0group = x
+        if s1 in x:
+            # TODO is this a shallow copy?
+            s1group = x
+
+    # TODO Can we eliminate this test?
+    if s0group != s1group:
+        s0group |= s1group
+        groups.remove(s1group)
+
+    # Not strictly necessary.
+    return (board, groups)
+
+
+
+def sgfboard_group_remove(board, group):
+    # Remove the group from the board.
+    for x in group:
+        board[x[0]][x[1]] = 0
+
+    # Remove the group from groups.
+    group.remove(group)
+
+    # Not strictly necessary.
+    return (board, groups)
 
 
 
 def sgfboard_capture(board, groups, s0, s1):
-    pass
+    # Find the group of s1. TODO Is there a better way to do this?
+    s1group = None
+    for x in groups:
+        if s1 in x:
+            # TODO Is this really a shallow copy?
+            s1group = x
+
+    # Test to see if the capture actually occurs.
+    if getFirstOrderLiberties(board, s1group) == []:
+        sgfboard_group_remove(board, s1group)
+
+    # Not strictly necessary.
+    return (board, groups)
 
 
 
@@ -39,9 +89,9 @@ def sgfboard_board(board, groups, color, xcoord, ycoord):
 
     # TODO Make this a static variable?
     INTERFERENCE = {-2 : sgfgroup_merge,
-                    -1 : pass,
+                    -1 : lambda x,y,z,a : None,
                      0 : sgfboard_capture,
-                     1 : pass,
+                     1 : lambda x,y,z,a : None,
                      2 : sgfgroup_merge,}
 
     # Check each of the stone's neighbors, merge groups if
@@ -59,32 +109,18 @@ def sgfboard_board(board, groups, color, xcoord, ycoord):
     if ycoord < 18:
         INTERFERENCE[color+board[xcoord][ycoord+1]](board, groups, (xcoord, ycoord),(xcoord, ycoord+1))
 
-    # Not strictly neccesary.
+    # Not strictly necessary.
     return (board, groups)
-
-    # Obsolete Techniques
-
-    # Compute the neighbor coordinates.
-    # neighbors = [(xcoord+delta[0], ycoord+delta[1]) for delta in ((-1, 0), (0, 1), (1, 0), (0, -1))]
-
-    # for deltax in [-1, 1]:
-    #     adjx = prop[1] + deltax
-    #     if 0 <= adjx:
-    #         pass
-    #     if adjx =< 20:
-    #         pass
-    #     for deltay in [-1, 1]:
-    #         adjy = prop[2] + deltay
-    #         if 0 <= adjx and adjx < 20:
                         
 
 
 def sgfstr_states_gen(instr):
-    boards = [sgfboard_empty_gen()]
-    groups = [[]]
-    # groupdict = {}
+    boards = [sgfboard_empty_gen(19, 19)]
+    # TODO Retain old groups for cache?
+    groups = []
+    # TODO Add dict for efficiency reasons.
 
-    # TODO Consume metadata?
+    # TODO Does this consume metadata?
     start = instr.find(';', instr.find(';') + 1)
 
     prop = [None, None, None]
@@ -97,12 +133,13 @@ def sgfstr_states_gen(instr):
         # Syntax characters.
         elif x == ';':
             boards.append(copy.deepcopy(boards[-1]))
-            groups.append(copy.deepcopy(groups[-1]))
+            # groups.append(copy.deepcopy(groups[-1]))
         elif x == '[':
             pass
         elif x == ']':
             if prop[0] != None:
-                sgfboard_step(boards[-1], groups[-1], prop[0], prop[1], prop[2])
+                #sgfboard_step(boards[-1], groups[-1], prop[0], prop[1], prop[2])
+                sgfboard_step(boards[-1], groups, prop[0], prop[1], prop[2])
                 prop = [None, None, None]
         elif x == '(':
             pass
