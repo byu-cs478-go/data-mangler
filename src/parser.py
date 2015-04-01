@@ -1,12 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sets import Set
+from sizeAndLibertyFunctions import *
 
-
-
-#isOn board
-def isOnBoard(loc):
-    return loc[0] >= 0 and loc[0] < 19 and loc[1] >=0 and loc[1] < 19
 
 #Protected liberties
 def protectedLiberties():
@@ -27,7 +23,7 @@ def twoClosestAdjacentOppoentBlockS():
 def addClosePoints(set, point):
     for i in range(3):
         for j in range(3):
-            np = ((point[0] + i-1), (point[1] + j-1))
+            np = ((point[0] + j-1), (point[1] + i-1))
             if isOnBoard(np):
                 set.add(np)
     far = []
@@ -47,14 +43,14 @@ def getLocalPoints(points):
     return local
 
 def localMajority(board, points):
-    color = board[points[0][1]][points[0][0]]
+    color = board[points[0][0]][points[0][1]]
 
     localPoints = getLocalPoints(points)
-    # plot(localPoints)
+    plot(localPoints)
     diff = 0
     for p in localPoints:
-        x = p[1]
-        y = p[0]
+        x = p[0]
+        y = p[1]
 
         diff += board[x][y]
 
@@ -67,7 +63,7 @@ def centerOfMass(points):
     distances = []
     for point in points:
         #up
-        distances.append(18 - point[1]) 
+        distances.append(18 - point[1])
 
         #down
         distances.append(point[1])
@@ -108,8 +104,8 @@ def plot(points):
     a = []
     b = []
     for p in points:
-        a.append(p[0])
-        b.append(p[1])
+        a.append(p[1])
+        b.append(p[0])
 
 
     plt.figure('points')
@@ -118,10 +114,6 @@ def plot(points):
     plt.xlim(0,19)
     plt.ylim(0,19)
     plt.show()
-
-
-def initBoard(row, col):
-    return [[0 for x in range(col)] for x in range(row)] 
 
 def showBoard(board):
     b_x = []
@@ -150,50 +142,19 @@ def showBoard(board):
 
 def placeStones(board, black, white):
     for p in black:
-        board[p[1]][p[0]] = -1
+        board[p[0]][p[1]] = -1
     for p in white:
-        board[p[1]][p[0]] = 1
+        board[p[0]][p[1]] = 1
 
-def buildGroup(board, color, loc, group):
-    if not isOnBoard(loc) or board[loc[0],loc[1]] != color or loc in group:
-        return group
-    group.add(loc)
-    # up
-    group.union(buildGroup(board,color,(loc[0] + 1,loc[1]),group))
-    # down
-    group.union(buildGroup(board,color,(loc[0] - 1,loc[1]),group))
-    # left
-    group.union(buildGroup(board,color,(loc[0],loc[1] - 1),group))
-    # right
-    group.union(buildGroup(board,color,(loc[0],loc[1] + 1),group)) 
 
-def getGroups(board):
-    groups = []
-    for i in range(0, len(board)):
-        for j in range(0, len(board[i])):
-            color = board[i][j]
-            if color == -1 or color == 1:
-                loc = (i,j)
-                found = False
-                for group in groups:
-                    if loc in group:
-                        found = True
-                        break
-                if not found:
-                    groups.push(buildGroup(board, color, loc, set()))
-                
-    
-    return list(groups)
 
 def _main():
-    board = initBoard(19, 19)
+    board = [[0 for x in range(19)] for x in range(19)] 
 
-    black = [(3,6), (4,5), (2,2), (3,2),(4,2), (4,3), (4,4),(4,6)]
+    black = [(3,6), (4,5), (2,2), (3,2),(4,2), (4,3), (4,4),(4,6),(3,1)]
     white = [(2,3), (1,2), (3,4), (1,4), (2,5)]
     placeStones(board, black, white)
-
-    print getGroups(board)
-
+    groups = getGroups(board)
     showBoard(board)
 
 
