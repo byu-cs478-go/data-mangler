@@ -54,14 +54,18 @@ def getPerimeters(board, groups):
         perimeter = set()
         for j in range(0, len(groups[i])):
             loc = groups[i][j]
-            if not loc in groups[i]:    
-                # up
+                
+            # up
+            if not (loc[0] + 1, loc[1]) in groups[i]:
                 perimeter.add((loc[0] + 1, loc[1]))
-                # down
+            # down
+            if not (loc[0] - 1, loc[1]) in groups[i]:
                 perimeter.add((loc[0] - 1, loc[1]))
-                # left
+            # left
+            if not (loc[0], loc[1] - 1) in groups[i]:
                 perimeter.add((loc[0], loc[1] - 1))
-                # right
+            # right
+            if not (loc[0], loc[1] + 1) in groups[i]:
                 perimeter.add((loc[0], loc[1] + 1))
         perimeters.append(len(perimeter))
     return perimeters
