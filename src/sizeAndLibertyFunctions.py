@@ -17,7 +17,7 @@ def getGroups(board):
                     if loc in group:
 		        found = True
                         break
-		if not found	    
+                if not found	    
                     groups.push(buildGroup(board, color, loc, set()))
                 
     
