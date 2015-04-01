@@ -3,49 +3,71 @@ import matplotlib.pyplot as plt
 from sets import Set
 from sizeAndLibertyFunctions import *
 
+def getColor(board, loc):
+    return board[loc[0]][loc[1]]
 
-#Protected liberties
-def protectedLiberties():
-    return null
 
-#Auto-atari liberties
-def autoAtariLiberties():
-    return null
+def getColors(board, groups):
+    colors = []
+    for group in groups:
+        loc = group[0]
+        color = getColor(board, loc)
+        colors.append(color)
+    return colors
+
+def getOppIndexes(colors, myColor):
+    oppIndex = []
+    for i, color in enumerate(colors):
+        if color != myColor:
+            oppIndex.append(i)
+    return oppIndex 
 
 #Shared liberties
-def sharedLiberties():
-    return null
+def sharedLiberties(board, groups, firstOrderLiberties):
+    sharedLiberties = []
+    colors = getColors(board, groups)
+    for i, liberties in enumerate(firstOrderLiberties):
+        oppIndexes = getOppIndexes(colors, colors[i])
+        sharedLiberty = 0
+        for liberty in liberties:
+            for oppIndex in oppIndexes:
+                if liberty in firstOrderLiberties[oppIndex]:
+                    sharedLiberty += 1
+                    break
+        sharedLiberties.append(sharedLiberty)
+
+    return sharedLiberties
 
 #Two closest Adjacent opponent blocks
-def twoClosestAdjacentOppoentBlockS():
-    return null
+def twoClosestAdjacentOppoentBlockS(board, groups):
+    
 
-def addClosePoints(set, point):
+def addClosePoints(set, loc):
     for i in range(3):
         for j in range(3):
-            np = ((point[0] + j-1), (point[1] + i-1))
+            np = ((loc[0] + j-1), (loc[1] + i-1))
             if isOnBoard(np):
                 set.add(np)
     far = []
-    far.append(((point[0]), (point[1]+2)))
-    far.append(((point[0]-2), (point[1])))
-    far.append(((point[0]+2), (point[1])))
-    far.append(((point[0]), (point[1]-2)))
+    far.append(((loc[0]), (loc[1]+2)))
+    far.append(((loc[0]-2), (loc[1])))
+    far.append(((loc[0]+2), (loc[1])))
+    far.append(((loc[0]), (loc[1]-2)))
     
     for p in far:
         if isOnBoard(p):
             set.add(p)
 
-def getLocalPoints(points):
+def getLocalPoints(loc):
     local = Set()
-    for p in points:
+    for p in loc:
         addClosePoints(local, p)
     return local
 
-def localMajority(board, points):
-    color = board[points[0][0]][points[0][1]]
+def localMajority(board, loc):
+    color = board[loc[0][0]][loc[0][1]]
 
-    localPoints = getLocalPoints(points)
+    localPoints = getLocalPoints(loc)
     plot(localPoints)
     diff = 0
     for p in localPoints:
@@ -59,53 +81,53 @@ def localMajority(board, points):
         maj = -diff
     return maj
 
-def centerOfMass(points):
+def centerOfMass(locs):
     distances = []
-    for point in points:
+    for loc in locs:
         #up
-        distances.append(18 - point[1])
+        distances.append(18 - loc[1])
 
         #down
-        distances.append(point[1])
+        distances.append(loc[1])
 
         #right
-        distances.append(18 - point[0])
+        distances.append(18 - loc[0])
 
         #lefty
-        distances.append(point[0])
+        distances.append(loc[0])
 
     sortedDistance = sorted(distances)
 
     return (sortedDistance[0], sortedDistance[1])
 
 # bounding box
-def boundingBoxSize(points):
-    boundingBoxSize = 0
+def boundingBoxSize(groups):
+    boundingBoxSizes = []
+    for locs in groups:
+        boundingBoxSize = 0
+        minPoint = [19, 19]
+        maxPoint = [0,0]
+        for loc in locs:
+            if loc[0] < minPoint[0]:
+                minPoint[0] = loc[0]
+            if loc[1] < minPoint[1]:
+                minPoint[1] = loc[1]
 
-    minPoint = [19, 19]
-    maxPoint = [0,0]
+            if loc[0] > maxPoint[0]:
+                maxPoint[0] = loc[0]
+            if loc[1] > maxPoint[1]:
+                maxPoint[1] = loc[1]
 
-    for point in points:
-        if point[0] < minPoint[0]:
-            minPoint[0] = point[0]
-        if point[1] < minPoint[1]:
-            minPoint[1] = point[1]
+        boundingBoxSize = (maxPoint[0] - minPoint[0]+1) * (maxPoint[1] - minPoint[1]+1)
+        boundingBoxSizes.append(boundingBoxSize)
+    return boundingBoxSizes
 
-        if point[0] > maxPoint[0]:
-            maxPoint[0] = point[0]
-        if point[1] > maxPoint[1]:
-            maxPoint[1] = point[1]
-
-    boundingBoxSize = (maxPoint[0] - minPoint[0]+1) * (maxPoint[1] - minPoint[1]+1)
-
-    return boundingBoxSize
-
-def plot(points):
+def plot(locs):
     a = []
     b = []
-    for p in points:
-        a.append(p[1])
-        b.append(p[0])
+    for loc in locs:
+        a.append(loc[1])
+        b.append(loc[0])
 
 
     plt.figure('points')
@@ -155,6 +177,10 @@ def _main():
     white = [(2,3), (1,2), (3,4), (1,4), (2,5)]
     placeStones(board, black, white)
     groups = getGroups(board)
+
+    print groups
+    print '\n'
+    print sharedLiberties(board, groups, getFirstOrderLiberties(board, groups))
     showBoard(board)
 
 
