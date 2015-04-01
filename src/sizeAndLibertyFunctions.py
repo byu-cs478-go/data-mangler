@@ -45,7 +45,7 @@ def isOnBoard(loc):
 def getSizes(board, groups):
     sizes = []
     for i in range(0, len(groups)):
-        sizes.push(len(groups[i]))
+        sizes.append(len(groups[i]))
     return sizes
 
 def getPerimeters(board, groups):
