@@ -20,8 +20,69 @@ def sgfboard_empty_gen():
 
 
 
+def sgfboard_merge(board, groups, s0, s1):
+    pass
+
+
+
+def sgfboard_capture(board, groups, s0, s1):
+    pass
+
+
+
+def sgfboard_board(board, groups, color, xcoord, ycoord):
+    # Place the stone.
+    board[xcoord][ycoord] = color
+
+    # Add the stone to its own group.
+    groups.append({(xcoord, ycoord)})
+
+    # TODO Make this a static variable?
+    INTERFERENCE = {-2 : sgfgroup_merge,
+                    -1 : pass,
+                     0 : sgfboard_capture,
+                     1 : pass,
+                     2 : sgfgroup_merge,}
+
+    # Check each of the stone's neighbors, merge groups if
+    # neccesary, and analyze the board to find stones that
+    # need to be removed.
+    if 0 < xcoord:
+        INTERFERENCE[color+board[xcoord-1][ycoord]](board, groups, (xcoord, ycoord),(xcoord-1, ycoord))
+
+    if xcoord < 18:
+        INTERFERENCE[color+board[xcoord+1][ycoord]](board, groups, (xcoord, ycoord),(xcoord+1, ycoord))
+
+    if 0 < ycoord:
+        INTERFERENCE[color+board[xcoord][ycoord-1]](board, groups, (xcoord, ycoord),(xcoord, ycoord-1))
+
+    if ycoord < 18:
+        INTERFERENCE[color+board[xcoord][ycoord+1]](board, groups, (xcoord, ycoord),(xcoord, ycoord+1))
+
+    # Not strictly neccesary.
+    return (board, groups)
+
+    # Obsolete Techniques
+
+    # Compute the neighbor coordinates.
+    # neighbors = [(xcoord+delta[0], ycoord+delta[1]) for delta in ((-1, 0), (0, 1), (1, 0), (0, -1))]
+
+    # for deltax in [-1, 1]:
+    #     adjx = prop[1] + deltax
+    #     if 0 <= adjx:
+    #         pass
+    #     if adjx =< 20:
+    #         pass
+    #     for deltay in [-1, 1]:
+    #         adjy = prop[2] + deltay
+    #         if 0 <= adjx and adjx < 20:
+                        
+
+
 def sgfstr_states_gen(instr):
     boards = [sgfboard_empty_gen()]
+    groups = [[]]
+    # groupdict = {}
 
     # TODO Consume metadata?
     start = instr.find(';', instr.find(';') + 1)
@@ -36,12 +97,12 @@ def sgfstr_states_gen(instr):
         # Syntax characters.
         elif x == ';':
             boards.append(copy.deepcopy(boards[-1]))
+            groups.append(copy.deepcopy(groups[-1]))
         elif x == '[':
             pass
         elif x == ']':
             if prop[0] != None:
-                boards[-1][prop[1]][prop[2]] = prop[0]
-                # TODO Apply the rules here?
+                sgfboard_step(boards[-1], groups[-1], prop[0], prop[1], prop[2])
                 prop = [None, None, None]
         elif x == '(':
             pass
