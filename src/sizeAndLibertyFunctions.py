@@ -78,16 +78,16 @@ def getFirstOrderLiberties(board, groups):
         for j in range(0, len(group)):
             loc = group[j]
             # up
-            if isOnBoard((loc[0] + 1, loc[1])) and board[loc[0]][loc[1]] == 0:
+            if isOnBoard((loc[0] + 1, loc[1])) and board[loc[0] + 1][loc[1]] == 0:
                 liberties.add((loc[0] + 1, loc[1]))
             # down
-            if isOnBoard((loc[0] - 1, loc[1])) and board[loc[0]][loc[1]] == 0:
+            if isOnBoard((loc[0] - 1, loc[1])) and board[loc[0] - 1][loc[1]] == 0:
                 liberties.add((loc[0] - 1, loc[1]))
             # left
-            if isOnBoard((loc[0], loc[1] - 1)) and board[loc[0]][loc[1]] == 0:
+            if isOnBoard((loc[0], loc[1] - 1)) and board[loc[0]][loc[1] - 1] == 0:
                 liberties.add((loc[0], loc[1] - 1))
             # right
-            if isOnBoard((loc[0], loc[1] + 1)) and board[loc[0]][loc[1]] == 0:
+            if isOnBoard((loc[0], loc[1] + 1)) and board[loc[0]][loc[1] + 1] == 0:
                 liberties.add((loc[0], loc[1] + 1))
                 
         libertiesLists.append(liberties)
