@@ -74,67 +74,74 @@ def getFirstOrderLiberties(board, groups):
     libertiesLists = []    
     for i in range(0, len(groups)):
         group = groups[i]
-        liberties = {}
+        liberties = set()
         for j in range(0, len(group)):
             loc = group[j]
             # up
             if isOnBoard((loc[0] + 1, loc[1])) and board[loc[0]][loc[1]] == 0:
-                liberties[(loc[0] + 1, loc[1])] = True
+                liberties.add((loc[0] + 1, loc[1]))
             # down
             if isOnBoard((loc[0] - 1, loc[1])) and board[loc[0]][loc[1]] == 0:
-                liberties[(loc[0] - 1, loc[1])] = True
+                liberties.add((loc[0] - 1, loc[1]))
             # left
             if isOnBoard((loc[0], loc[1] - 1)) and board[loc[0]][loc[1]] == 0:
-                liberties[(loc[0], loc[1] - 1)] = True
+                liberties.add((loc[0], loc[1] - 1))
             # right
             if isOnBoard((loc[0], loc[1] + 1)) and board[loc[0]][loc[1]] == 0:
-                liberties[(loc[0], loc[1] + 1)] = True
+                liberties.add((loc[0], loc[1] + 1))
                 
-        libertiesLists.append((liberties, len(liberties)))
+        libertiesLists.append(liberties)
     return libertiesLists
     
 def getSecondOrderLiberties(board, groups, firstOrderLiberties):
     libertiesLists = []    
     for i in range(0, len(groups)):
         group = groups[i]
-        liberties = {}
+        liberties = set
         for j in range(0, len(group)):
             loc = group[j]
             # up
-            if isOnBoard((loc[0] + 1, loc[1])) and not firstOrderLiberties[i][(loc[0] + 1, loc[1])] and board[loc[0] + 1][loc[1]] == 0:
-                liberties[(loc[0] + 1, loc[1])] = True
+            if isOnBoard((loc[0] + 1, loc[1])) and (loc[0] + 1, loc[1]) not in firstOrderLiberties[i] and board[loc[0] + 1][loc[1]] == 0:
+                liberties.add((loc[0] + 1, loc[1]))
             # down
-            if isOnBoard((loc[0] - 1, loc[1])) and not firstOrderLiberties[i][(loc[0] - 1, loc[1])] and board[loc[0] - 1][loc[1]] == 0:
-                liberties[(loc[0] - 1, loc[1])] = True
+            if isOnBoard((loc[0] - 1, loc[1])) and (loc[0] - 1, loc[1]) not in firstOrderLiberties[i] and board[loc[0] - 1][loc[1]] == 0:
+                liberties.add((loc[0] - 1, loc[1]))
             # left
-            if isOnBoard((loc[0], loc[1] - 1)) and not firstOrderLiberties[i][(loc[0], loc[1]) - 1] and board[loc[0]][loc[1] - 1] == 0:
-                liberties[(loc[0], loc[1] - 1)] = True
+            if isOnBoard((loc[0], loc[1] - 1)) and (loc[0], loc[1] - 1) not in firstOrderLiberties[i] and board[loc[0]][loc[1] - 1] == 0:
+                liberties.add((loc[0], loc[1] - 1))
             # right
-            if isOnBoard((loc[0], loc[1] + 1)) and not firstOrderLiberties[i][(loc[0], loc[1]) + 1] and board[loc[0]][loc[1] + 1] == 0:
-                liberties[(loc[0], loc[1] + 1)] = True
+            if isOnBoard((loc[0], loc[1] + 1)) and (loc[0], loc[1] + 1) not in firstOrderLiberties[i] and board[loc[0]][loc[1] + 1] == 0:
+                liberties.add((loc[0], loc[1] + 1))
                 
-        libertiesLists.append((liberties, len(liberties)))
+        libertiesLists.append(liberties)
     return libertiesLists
     
 def getThirdOrderLiberties(board, groups, firstOrderLiberties, secondOrderLiberties):
     libertiesLists = []    
     for i in range(0, len(groups)):
         group = groups[i]
-        liberties = {}
+        liberties = set()
         for j in range(0, len(group)):
             loc = group[j]
             # up
-            if isOnBoard((loc[0] + 1, loc[1])) and not firstOrderLiberties[i][(loc[0] + 1, loc[1])] and not secondOrderLiberties[i][(loc[0] + 1, loc[1])] and board[loc[0] + 1][loc[1]] == 0:
-                liberties[(loc[0] + 1, loc[1])] = True
+            if isOnBoard((loc[0] + 1, loc[1])) and (loc[0] + 1, loc[1]) not in firstOrderLiberties[i] and (loc[0] + 1, loc[1]) not in secondOrderLiberties[i] and board[loc[0] + 1][loc[1]] == 0:
+                liberties.add((loc[0] + 1, loc[1]))
             # down
-            if isOnBoard((loc[0] - 1, loc[1])) and not firstOrderLiberties[i][(loc[0] - 1, loc[1])] and not secondOrderLiberties[i][(loc[0] - 1, loc[1])] and board[loc[0] - 1][loc[1]] == 0:
-                liberties[(loc[0] - 1, loc[1])] = True
+            if isOnBoard((loc[0] - 1, loc[1])) and (loc[0] - 1, loc[1]) not in firstOrderLiberties[i] and (loc[0] - 1, loc[1]) not in secondOrderLiberties[i] and board[loc[0] - 1][loc[1]] == 0:
+                liberties.add((loc[0] - 1, loc[1]))
             # left
-            if isOnBoard((loc[0], loc[1] - 1)) and not firstOrderLiberties[i][(loc[0], loc[1]) - 1] and not secondOrderLiberties[i][(loc[0], loc[1]) - 1] and board[loc[0]][loc[1] - 1] == 0:
-                liberties[(loc[0], loc[1] - 1)] = True
+            if isOnBoard((loc[0], loc[1] - 1)) and (loc[0], loc[1] - 1) not in firstOrderLiberties[i] and (loc[0], loc[1] - 1) not in secondOrderLiberties[i] and board[loc[0]][loc[1] - 1] == 0:
+                liberties.add((loc[0], loc[1] - 1))
             # right
-            if isOnBoard((loc[0], loc[1] + 1)) and not firstOrderLiberties[i][(loc[0], loc[1]) + 1] and not secondOrderLiberties[i][(loc[0], loc[1]) + 1] and board[loc[0]][loc[1] + 1] == 0:
-                liberties[(loc[0], loc[1] + 1)] = True
+            if isOnBoard((loc[0], loc[1] + 1)) and (loc[0], loc[1] + 1) not in firstOrderLiberties[i] and (loc[0], loc[1] + 1) not in secondOrderLiberties[i] and board[loc[0]][loc[1] + 1] == 0:
+                liberties.add((loc[0], loc[1] + 1))
                 
-        libertiesLists.append(len(liberties))
+        libertiesLists.append(liberties)
     return libertiesLists
+    
+def getLiberties(board, groups):
+    firstOrderLiberties = getFirstOrderLiberties(board, groups)
+    secondOrderLiberties = getSecondOrderLiberties(board, groups, firstOrderLiberties)
+    thirdOrderLiberties = getThirdOrderLiberties(board, groups, firstOrderLiberties, secondOrderLiberties)
+    
+    return (len(firstOrderLiberties), len(secondOrderLiberties), len(thirdOrderLiberties))
