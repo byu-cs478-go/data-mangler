@@ -169,14 +169,18 @@ def buildGroup(board, color, loc, group):
 
 def getGroups(board):
     groups = []
-    for i in range(len(board)):
-        for j in range(len(board[i])):
+    for i in range(0, len(board)):
+        for j in range(0, len(board[i])):
             color = board[i][j]
             if color == -1 or color == 1:
                 loc = (i,j)
+                found = False
                 for group in groups:
-                    if loc not in group:    
-                        groups.push(buildGroup(board, color, loc, set()))
+                    if loc in group:
+                        found = True
+                        break
+                if not found:
+                    groups.push(buildGroup(board, color, loc, set()))
                 
     
     return list(groups)
