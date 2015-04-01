@@ -12,19 +12,20 @@ def getGroups(board):
             color = board[i][j]
             if color == -1 or color == 1:
                 loc = (i,j)
-		found = False
+                found = False
                 for group in groups:
                     if loc in group:
 		        found = True
                         break
                 if not found:
-                    groups.push(buildGroup(board, color, loc, set()))
-                
-    
-    return list(groups)
+                    groups.append(buildGroup(board, color, loc, set()))
+    result = []
+    for group in groups:
+        result.append(list(group))
+    return result
             
 def buildGroup(board, color, loc, group):
-    if not isOnBoard(loc) or board[loc[0],loc[1]] != color or loc in group:
+    if not isOnBoard(loc) or board[loc[0]][loc[1]] != color or loc in group:
         return group
     group.add(loc)
     # up
@@ -35,6 +36,8 @@ def buildGroup(board, color, loc, group):
     group.union(buildGroup(board,color,(loc[0],loc[1] - 1),group))
     # right
     group.union(buildGroup(board,color,(loc[0],loc[1] + 1),group))    
+    
+    return group
     
 def isOnBoard(loc):
     return loc[0] >= 0 and loc[0] < 19 and loc[1] >= 0 and loc[1] < 19
