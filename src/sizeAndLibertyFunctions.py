@@ -51,18 +51,18 @@ def getSizes(board, groups):
 def getPerimeters(board, groups):
     perimeters = []
     for i in range(0, len(groups)):
-        perimeter = {}
+        perimeter = set()
         for j in range(0, len(groups[i])):
             loc = groups[i][j]
             # up
-            perimeter[(loc[0] + 1, loc[1])] = True
+            perimeter.add((loc[0] + 1, loc[1]))
             # down
-            perimeter[(loc[0] - 1, loc[1])] = True
+            perimeter.add((loc[0] - 1, loc[1]))
             # left
-            perimeter[(loc[0], loc[1] - 1)] = True
+            perimeter.add((loc[0], loc[1] - 1))
             # right
-            perimeter[(loc[0], loc[1] + 1)] = True
-        perimeters[i] = len(perimeter)
+            perimeter.add((loc[0], loc[1] + 1))
+        perimeters.append(len(perimeter))
     return perimeters
     
 def getFirstOrderLiberties(board, groups):
