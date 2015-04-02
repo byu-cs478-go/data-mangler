@@ -12,15 +12,20 @@ def getGroups(board):
             color = board[i][j]
             if color == -1 or color == 1:
                 loc = (i,j)
+                found = False
                 for group in groups:
-                    if loc not in group:    
-                        groups.push(buildGroup(board, color, loc, set()))
-                
-    
-    return list(groups)
+                    if loc in group:
+		        found = True
+                        break
+                if not found:
+                    groups.append(buildGroup(board, color, loc, set()))
+    result = []
+    for group in groups:
+        result.append(list(group))
+    return result
             
 def buildGroup(board, color, loc, group):
-    if not isOnBoard(loc) or board[loc[0],loc[1]] != color or loc in group:
+    if not isOnBoard(loc) or board[loc[0]][loc[1]] != color or loc in group:
         return group
     group.add(loc)
     # up
@@ -32,97 +37,114 @@ def buildGroup(board, color, loc, group):
     # right
     group.union(buildGroup(board,color,(loc[0],loc[1] + 1),group))    
     
+    return group
+    
 def isOnBoard(loc):
     return loc[0] >= 0 and loc[0] < 19 and loc[1] >= 0 and loc[1] < 19
 
 def getSizes(board, groups):
     sizes = []
     for i in range(0, len(groups)):
-        sizes.push(len(groups[i]))
+        sizes.append(len(groups[i]))
     return sizes
 
 def getPerimeters(board, groups):
     perimeters = []
     for i in range(0, len(groups)):
-        perimeter = {}
+        perimeter = set()
         for j in range(0, len(groups[i])):
             loc = groups[i][j]
+                
             # up
-            perimeter[(loc[0] + 1, loc[1])] = True
+            if not (loc[0] + 1, loc[1]) in groups[i]:
+                perimeter.add((loc[0] + 1, loc[1]))
             # down
-            perimeter[(loc[0] - 1, loc[1])] = True
+            if not (loc[0] - 1, loc[1]) in groups[i]:
+                perimeter.add((loc[0] - 1, loc[1]))
             # left
-            perimeter[(loc[0], loc[1] - 1)] = True
+            if not (loc[0], loc[1] - 1) in groups[i]:
+                perimeter.add((loc[0], loc[1] - 1))
             # right
-            perimeter[(loc[0], loc[1] + 1)] = True
-        perimeters[i] = len(perimeter)
+            if not (loc[0], loc[1] + 1) in groups[i]:
+                perimeter.add((loc[0], loc[1] + 1))
+        perimeters.append(len(perimeter))
     return perimeters
     
 def getFirstOrderLiberties(board, groups):
     libertiesLists = []    
     for i in range(0, len(groups)):
         group = groups[i]
-        liberties = {}
+        liberties = set()
         for j in range(0, len(group)):
-            loc = group[i]
+            loc = group[j]
             # up
-            if isOnBoard((loc[0] + 1, loc[1])) and board[loc[0]][loc[1]] == 0:
-                liberties[(loc[0] + 1, loc[1])] = True
+            if isOnBoard((loc[0] + 1, loc[1])) and board[loc[0] + 1][loc[1]] == 0:
+                liberties.add((loc[0] + 1, loc[1]))
             # down
-            if isOnBoard((loc[0] - 1, loc[1])) and board[loc[0]][loc[1]] == 0:
-                liberties[(loc[0] - 1, loc[1])] = True
+            if isOnBoard((loc[0] - 1, loc[1])) and board[loc[0] - 1][loc[1]] == 0:
+                liberties.add((loc[0] - 1, loc[1]))
             # left
-            if isOnBoard((loc[0], loc[1] - 1)) and board[loc[0]][loc[1]] == 0:
-                liberties[(loc[0], loc[1] - 1)] = True
+            if isOnBoard((loc[0], loc[1] - 1)) and board[loc[0]][loc[1] - 1] == 0:
+                liberties.add((loc[0], loc[1] - 1))
             # right
-            if isOnBoard((loc[0], loc[1] + 1)) and board[loc[0]][loc[1]] == 0:
-                liberties[(loc[0], loc[1] + 1)] = True
+            if isOnBoard((loc[0], loc[1] + 1)) and board[loc[0]][loc[1] + 1] == 0:
+                liberties.add((loc[0], loc[1] + 1))
                 
-        libertiesLists[i] = (liberties, len(liberties))
+        libertiesLists.append(liberties)
     return libertiesLists
     
 def getSecondOrderLiberties(board, groups, firstOrderLiberties):
     libertiesLists = []    
-    for i in range(0, len(groups)):
-        group = groups[i]
-        liberties = {}
-        for j in range(0, len(group)):
-            loc = group[i]
+    for i in range(0, len(firstOrderLiberties)):
+        fol = firstOrderLiberties[i]
+        liberties = set()
+        for loc in fol:
             # up
-            if isOnBoard((loc[0] + 1, loc[1])) and not firstOrderLiberties[i][(loc[0] + 1, loc[1])] and board[loc[0] + 1][loc[1]] == 0:
-                liberties[(loc[0] + 1, loc[1])] = True
+            if isOnBoard((loc[0] + 1, loc[1])) and (loc[0] + 1, loc[1]) not in firstOrderLiberties[i] and board[loc[0] + 1][loc[1]] == 0:
+                liberties.add((loc[0] + 1, loc[1]))
             # down
-            if isOnBoard((loc[0] - 1, loc[1])) and not firstOrderLiberties[i][(loc[0] - 1, loc[1])] and board[loc[0] - 1][loc[1]] == 0:
-                liberties[(loc[0] - 1, loc[1])] = True
+            if isOnBoard((loc[0] - 1, loc[1])) and (loc[0] - 1, loc[1]) not in firstOrderLiberties[i] and board[loc[0] - 1][loc[1]] == 0:
+                liberties.add((loc[0] - 1, loc[1]))
             # left
-            if isOnBoard((loc[0], loc[1] - 1)) and not firstOrderLiberties[i][(loc[0], loc[1]) - 1] and board[loc[0]][loc[1] - 1] == 0:
-                liberties[(loc[0], loc[1] - 1)] = True
+            if isOnBoard((loc[0], loc[1] - 1)) and (loc[0], loc[1] - 1) not in firstOrderLiberties[i] and board[loc[0]][loc[1] - 1] == 0:
+                liberties.add((loc[0], loc[1] - 1))
             # right
-            if isOnBoard((loc[0], loc[1] + 1)) and not firstOrderLiberties[i][(loc[0], loc[1]) + 1] and board[loc[0]][loc[1] + 1] == 0:
-                liberties[(loc[0], loc[1] + 1)] = True
+            if isOnBoard((loc[0], loc[1] + 1)) and (loc[0], loc[1] + 1) not in firstOrderLiberties[i] and board[loc[0]][loc[1] + 1] == 0:
+                liberties.add((loc[0], loc[1] + 1))
                 
-        libertiesLists[i] = (liberties, len(liberties))
+        libertiesLists.append(liberties)
     return libertiesLists
     
 def getThirdOrderLiberties(board, groups, firstOrderLiberties, secondOrderLiberties):
     libertiesLists = []    
-    for i in range(0, len(groups)):
-        group = groups[i]
-        liberties = {}
-        for j in range(0, len(group)):
-            loc = group[i]
+    for i in range(0, len(secondOrderLiberties)):
+        sol = secondOrderLiberties[i]
+        liberties = set()
+        for loc in sol:
             # up
-            if isOnBoard((loc[0] + 1, loc[1])) and not firstOrderLiberties[i][(loc[0] + 1, loc[1])] and not secondOrderLiberties[i][(loc[0] + 1, loc[1])] and board[loc[0] + 1][loc[1]] == 0:
-                liberties[(loc[0] + 1, loc[1])] = True
+            if isOnBoard((loc[0] + 1, loc[1])) and (loc[0] + 1, loc[1]) not in firstOrderLiberties[i] and (loc[0] + 1, loc[1]) not in secondOrderLiberties[i] and board[loc[0] + 1][loc[1]] == 0:
+                liberties.add((loc[0] + 1, loc[1]))
             # down
-            if isOnBoard((loc[0] - 1, loc[1])) and not firstOrderLiberties[i][(loc[0] - 1, loc[1])] and not secondOrderLiberties[i][(loc[0] - 1, loc[1])] and board[loc[0] - 1][loc[1]] == 0:
-                liberties[(loc[0] - 1, loc[1])] = True
+            if isOnBoard((loc[0] - 1, loc[1])) and (loc[0] - 1, loc[1]) not in firstOrderLiberties[i] and (loc[0] - 1, loc[1]) not in secondOrderLiberties[i] and board[loc[0] - 1][loc[1]] == 0:
+                liberties.add((loc[0] - 1, loc[1]))
             # left
-            if isOnBoard((loc[0], loc[1] - 1)) and not firstOrderLiberties[i][(loc[0], loc[1]) - 1] and not secondOrderLiberties[i][(loc[0], loc[1]) - 1] and board[loc[0]][loc[1] - 1] == 0:
-                liberties[(loc[0], loc[1] - 1)] = True
+            if isOnBoard((loc[0], loc[1] - 1)) and (loc[0], loc[1] - 1) not in firstOrderLiberties[i] and (loc[0], loc[1] - 1) not in secondOrderLiberties[i] and board[loc[0]][loc[1] - 1] == 0:
+                liberties.add((loc[0], loc[1] - 1))
             # right
-            if isOnBoard((loc[0], loc[1] + 1)) and not firstOrderLiberties[i][(loc[0], loc[1]) + 1] and not secondOrderLiberties[i][(loc[0], loc[1]) + 1] and board[loc[0]][loc[1] + 1] == 0:
-                liberties[(loc[0], loc[1] + 1)] = True
+            if isOnBoard((loc[0], loc[1] + 1)) and (loc[0], loc[1] + 1) not in firstOrderLiberties[i] and (loc[0], loc[1] + 1) not in secondOrderLiberties[i] and board[loc[0]][loc[1] + 1] == 0:
+                liberties.add((loc[0], loc[1] + 1))
                 
-        libertiesLists[i] = len(liberties)
+        libertiesLists.append(liberties)
     return libertiesLists
+    
+def getLiberties(board, groups):
+    firstOrderLiberties = getFirstOrderLiberties(board, groups)
+    secondOrderLiberties = getSecondOrderLiberties(board, groups, firstOrderLiberties)
+    thirdOrderLiberties = getThirdOrderLiberties(board, groups, firstOrderLiberties, secondOrderLiberties)
+    
+    libertiesList = []
+    for i in range(len(groups)):
+        libertiesList.append((len(firstOrderLiberties[i]), len(secondOrderLiberties[i]), len(thirdOrderLiberties[i])))
+        
+    return libertiesList
+    

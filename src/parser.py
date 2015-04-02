@@ -1,115 +1,245 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sets import Set
+from sizeAndLibertyFunctions import *
+
+def getColor(board, loc):
+    return board[loc[0]][loc[1]]
 
 
+def getColors(board, groups):
+    colors = []
+    for group in groups:
+        loc = group[0]
+        color = getColor(board, loc)
+        colors.append(color)
+    return colors
 
-#isOn board
-def isOnBoard(loc):
-    return loc[0] >= 0 and loc[0] < 19 and loc[1] >=0 and loc[1] < 19
-
-#Protected liberties
-def protectedLiberties():
-    return null
-
-#Auto-atari liberties
-def autoAtariLiberties():
-    return null
+def getOppIndexes(colors, myColor):
+    oppIndex = []
+    for i, color in enumerate(colors):
+        if color != myColor:
+            oppIndex.append(i)
+    return oppIndex 
 
 #Shared liberties
-def sharedLiberties():
-    return null
+def sharedLiberties(board, groups, firstOrderLiberties):
+    sharedLiberties = []
+    colors = getColors(board, groups)
+    for i, liberties in enumerate(firstOrderLiberties):
+        oppIndexes = getOppIndexes(colors, colors[i])
+        sharedLiberty = 0
+        for liberty in liberties:
+            for oppIndex in oppIndexes:
+                if liberty in firstOrderLiberties[oppIndex]:
+                    sharedLiberty += 1
+                    break
+        sharedLiberties.append(sharedLiberty)
 
-#Two closest Adjacent opponent blocks
-def twoClosestAdjacentOppoentBlockS():
-    return null
+    return sharedLiberties
 
-def addClosePoints(set, point):
+#Two closest friendly blocks
+def twoClosestFriendlyBlocks(board, groups, firstOrderLiberties):
+    friendlyBlocks = []
+    colors = getColors(board, groups)
+    for i, group in enumerate(groups):
+        friendlyBlock = [(0,0) for x in range(2)] 
+        cnt = 0
+        closefriendlyGroupIndexes = []
+        curColor = getColor(board, group[0])
+        for j in range(1, 3):
+            localPoints = getClosePointsWithDistance(group, j)
+            # plot(localPoints)
+            for loc in localPoints:
+                if getColor(board, loc) == curColor:
+                    friendlyIndex = getGroupIndexWithLoc(groups, loc)
+                    if friendlyIndex not in closefriendlyGroupIndexes:
+                        closefriendlyGroupIndexes.append(friendlyIndex)
+                        friendlyBlock[cnt] = (boundingBoxSize(groups[friendlyIndex]), len(firstOrderLiberties[friendlyIndex]))
+                        cnt += 1
+                        if cnt == 2:
+                            break
+            if cnt == 2:
+                break
+        print friendlyBlock
+        friendlyBlocks.append(friendlyBlock)
+    return friendlyBlocks
+
+def addClosePointsWithDistance(local, loc, dis):
+    if dis == 1:
+        close = []
+        close.append(((loc[0] + 1), (loc[1])))
+        close.append(((loc[0]), (loc[1])-1))
+        close.append(((loc[0]), (loc[1])+1))
+        close.append(((loc[0] -1), (loc[1])))
+        for p in close:
+            if isOnBoard(p):
+                local.add(p)
+        return
+
     for i in range(3):
         for j in range(3):
-            np = ((point[0] + i-1), (point[1] + j-1))
+            np = ((loc[0] + j-1), (loc[1] + i-1))
+            if isOnBoard(np):
+                local.add(np)
+    far = []
+    far.append(((loc[0]), (loc[1]+2)))
+    far.append(((loc[0]-2), (loc[1])))
+    far.append(((loc[0]+2), (loc[1])))
+    far.append(((loc[0]), (loc[1]-2)))
+    
+    for p in far:
+        if isOnBoard(p):
+            local.add(p)
+
+def getClosePointsWithDistance(group, dis):
+    local = Set()
+    for loc in group:
+        addClosePointsWithDistance(local, loc, 1)
+    if dis == 1:
+        return list(local - Set(group))
+    elif dis == 2:
+        far = Set()
+        for loc in group:
+            addClosePointsWithDistance(far, loc, 2)
+        return list(far - local - Set(group))
+
+def getGroupIndexWithLoc(groups, loc):
+    for i, group in enumerate(groups):
+        if loc in group:
+            return i
+
+#Two closest Adjacent opponent blocks
+def twoClosestAdjacentOppoentBlocks(board, groups, firstOrderLiberties):
+    opponentBlocks = []
+    colors = getColors(board, groups)
+    for i, group in enumerate(groups):
+        opponentBlock = [(0,0) for x in range(2)] 
+        cnt = 0
+        closeOppGroupIndexes = []
+        curColor = getColor(board, group[0])
+        for j in range(1, 3):
+            localPoints = getClosePointsWithDistance(group, j)
+            # plot(localPoints)
+            for loc in localPoints:
+                if getColor(board, loc) == curColor * (-1):
+                    oppIndex = getGroupIndexWithLoc(groups, loc)
+                    # print oppIndex
+                    if oppIndex not in closeOppGroupIndexes:
+                        closeOppGroupIndexes.append(oppIndex)
+                        opponentBlock[cnt] = (boundingBoxSize(groups[oppIndex]), len(firstOrderLiberties[oppIndex]))
+                        cnt += 1
+                        if cnt == 2:
+                            break
+            if cnt == 2:
+                break
+        print opponentBlock
+        opponentBlocks.append(opponentBlock)
+    return opponentBlocks
+
+def addClosePoints(set, loc):
+    for i in range(3):
+        for j in range(3):
+            np = ((loc[0] + j-1), (loc[1] + i-1))
             if isOnBoard(np):
                 set.add(np)
     far = []
-    far.append(((point[0]), (point[1]+2)))
-    far.append(((point[0]-2), (point[1])))
-    far.append(((point[0]+2), (point[1])))
-    far.append(((point[0]), (point[1]-2)))
+    far.append(((loc[0]), (loc[1]+2)))
+    far.append(((loc[0]-2), (loc[1])))
+    far.append(((loc[0]+2), (loc[1])))
+    far.append(((loc[0]), (loc[1]-2)))
     
     for p in far:
         if isOnBoard(p):
             set.add(p)
 
-def getLocalPoints(points):
+def getLocalPoints(locs):
     local = Set()
-    for p in points:
-        addClosePoints(local, p)
+    for loc in locs:
+        addClosePoints(local, loc)
     return local
 
-def localMajority(board, points):
-    color = board[points[0][1]][points[0][0]]
-
-    localPoints = getLocalPoints(points)
+def getLocalMajority(board, group):
+    color = getColor(board, group[0])
+    localPoints = getLocalPoints(group)
     # plot(localPoints)
     diff = 0
-    for p in localPoints:
-        x = p[1]
-        y = p[0]
-
-        diff += board[x][y]
+    for loc in localPoints:
+        # x = p[0]
+        # y = p[1]
+        diff += getColor(board, loc)
 
     maj = diff
     if color == 1: # when white is 1
         maj = -diff
     return maj
 
-def centerOfMass(points):
+#Local majorities
+def getLocalMajorities(board, groups):
+    localMajorities = []
+    for group in groups:
+        localMajority = getLocalMajority(board, group)
+        localMajorities.append(localMajority)
+    return localMajorities
+
+def getCenterOfMass(locs):
     distances = []
-    for point in points:
+    for loc in locs:
         #up
-        distances.append(18 - point[1]) 
+        distances.append(18 - loc[1])
 
         #down
-        distances.append(point[1])
+        distances.append(loc[1])
 
         #right
-        distances.append(18 - point[0])
+        distances.append(18 - loc[0])
 
         #lefty
-        distances.append(point[0])
+        distances.append(loc[0])
 
     sortedDistance = sorted(distances)
 
     return (sortedDistance[0], sortedDistance[1])
 
-# bounding box
-def boundingBoxSize(points):
-    boundingBoxSize = 0
+#Center of masses
+def getCenterOfMasses(groups):
+    centerOfMasses = []
+    for group in groups:
+        centerOfMass = getCenterOfMass(group)
+        centerOfMasses.append(centerOfMass)
+    return centerOfMasses
 
+def boundingBoxSize(group):
+    boundingBoxSize = 0
     minPoint = [19, 19]
     maxPoint = [0,0]
+    for loc in group:
+        if loc[0] < minPoint[0]:
+            minPoint[0] = loc[0]
+        if loc[1] < minPoint[1]:
+            minPoint[1] = loc[1]
 
-    for point in points:
-        if point[0] < minPoint[0]:
-            minPoint[0] = point[0]
-        if point[1] < minPoint[1]:
-            minPoint[1] = point[1]
+        if loc[0] > maxPoint[0]:
+            maxPoint[0] = loc[0]
+        if loc[1] > maxPoint[1]:
+            maxPoint[1] = loc[1]
 
-        if point[0] > maxPoint[0]:
-            maxPoint[0] = point[0]
-        if point[1] > maxPoint[1]:
-            maxPoint[1] = point[1]
+    return (maxPoint[0] - minPoint[0]+1) * (maxPoint[1] - minPoint[1]+1)
 
-    boundingBoxSize = (maxPoint[0] - minPoint[0]+1) * (maxPoint[1] - minPoint[1]+1)
+# bounding box
+def boundingBoxSizes(groups):
+    boundingBoxSizes = []
+    for group in groups:
+        boundingBoxSize = boundingBoxSize(group)
+        boundingBoxSizes.append(boundingBoxSize)
+    return boundingBoxSizes
 
-    return boundingBoxSize
-
-def plot(points):
+def plot(locs):
     a = []
     b = []
-    for p in points:
-        a.append(p[0])
-        b.append(p[1])
+    for loc in locs:
+        a.append(loc[1])
+        b.append(loc[0])
 
 
     plt.figure('points')
@@ -118,10 +248,6 @@ def plot(points):
     plt.xlim(0,19)
     plt.ylim(0,19)
     plt.show()
-
-
-def initBoard(row, col):
-    return [[0 for x in range(col)] for x in range(row)] 
 
 def showBoard(board):
     b_x = []
@@ -150,19 +276,22 @@ def showBoard(board):
 
 def placeStones(board, black, white):
     for p in black:
-        board[p[1]][p[0]] = -1
+        board[p[0]][p[1]] = -1
     for p in white:
-        board[p[1]][p[0]] = 1
+        board[p[0]][p[1]] = 1
+
 
 
 def _main():
-    board = initBoard(19, 19)
+    board = [[0 for x in range(19)] for x in range(19)] 
 
-    black = [(3,6), (4,5), (2,2), (3,2),(4,2), (4,3), (4,4),(4,6)]
-    white = [(2,3), (1,2), (3,4), (1,4), (2,5)]
+    black = [(3,6), (4,5), (2,2), (3,2),(4,2), (4,3), (4,4),(4,6),(3,1)]
+    white = [(2,3), (1,2), (3,4), (1,4), (2,5), (0,0)]
     placeStones(board, black, white)
+    groups = getGroups(board)
 
-    print localMajority(board, black)
+    twoClosestFriendlyBlocks(board, groups, getFirstOrderLiberties(board, groups))
+
     showBoard(board)
 
 
