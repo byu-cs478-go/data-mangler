@@ -80,7 +80,7 @@ def sgfboard_capture(board, groups, s0, s1):
 
 
 
-def sgfboard_board(board, groups, color, xcoord, ycoord):
+def sgfboard_step(board, groups, color, xcoord, ycoord):
     # Place the stone.
     board[xcoord][ycoord] = color
 
@@ -88,11 +88,11 @@ def sgfboard_board(board, groups, color, xcoord, ycoord):
     groups.append({(xcoord, ycoord)})
 
     # TODO Make this a static variable?
-    INTERFERENCE = {-2 : sgfgroup_merge,
+    INTERFERENCE = {-2 : sgfboard_merge,
                     -1 : lambda x,y,z,a : None,
                      0 : sgfboard_capture,
                      1 : lambda x,y,z,a : None,
-                     2 : sgfgroup_merge,}
+                     2 : sgfboard_merge,}
 
     # Check each of the stone's neighbors, merge groups if
     # neccesary, and analyze the board to find stones that
@@ -114,7 +114,7 @@ def sgfboard_board(board, groups, color, xcoord, ycoord):
                         
 
 
-def sgfstr_states_gen(instr):
+def sgfstr_boards_gen(instr):
     boards = [sgfboard_empty_gen(19, 19)]
     # TODO Retain old groups for cache?
     groups = []
@@ -158,7 +158,7 @@ def sgfstr_states_gen(instr):
             if prop[0] == None:
                 prop[0] = -1
         # TODO Uncertain syntax. Does not handle capital grid coordinates.
-        elif ord(x) in range(ord(a), ord(t)+1):
+        elif ord(x) in range(ord('a'), ord('t')+1):
             if prop[0] != None:
                 if prop[1] == None:
                     prop[1] = ord(x) - 96
