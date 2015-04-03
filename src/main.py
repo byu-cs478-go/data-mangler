@@ -3,6 +3,8 @@ import os
 import subprocess
 import copy
 
+import salf
+
 
 
 # This header goes at the top of the generated .arff file. It includes
