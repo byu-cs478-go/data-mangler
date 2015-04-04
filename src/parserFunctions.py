@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from sets import Set
-from sizeAndLibertyFunctions import *
+#from sets import Set
+
 
 
 def getGroups(board):
@@ -14,7 +14,7 @@ def getGroups(board):
                 found = False
                 for group in groups:
                     if loc in group:
-                found = True
+                        found = True
                         break
                 if not found:
                     groups.append(buildGroup(board, color, loc, set()))
@@ -74,24 +74,21 @@ def getPerimeters(board, groups):
 #get First-order Liberties 
 def getFirstOrderLiberties(board, groups):
     libertiesLists = []    
-    for i in range(0, len(groups)):
-        group = groups[i]
+    for group in groups:
         liberties = set()
-        for j in range(0, len(group)):
-            loc = group[j]
+        for stone in group:
             # up
-            if isOnBoard((loc[0] + 1, loc[1])) and board[loc[0] + 1][loc[1]] == 0:
-                liberties.add((loc[0] + 1, loc[1]))
+            if isOnBoard((stone[0] + 1, stone[1])) and board[stone[0] + 1][stone[1]] == 0:
+                liberties.add((stone[0] + 1, stone[1]))
             # down
-            if isOnBoard((loc[0] - 1, loc[1])) and board[loc[0] - 1][loc[1]] == 0:
-                liberties.add((loc[0] - 1, loc[1]))
+            if isOnBoard((stone[0] - 1, stone[1])) and board[stone[0] - 1][stone[1]] == 0:
+                liberties.add((stone[0] - 1, stone[1]))
             # left
-            if isOnBoard((loc[0], loc[1] - 1)) and board[loc[0]][loc[1] - 1] == 0:
-                liberties.add((loc[0], loc[1] - 1))
+            if isOnBoard((stone[0], stone[1] - 1)) and board[stone[0]][stone[1] - 1] == 0:
+                liberties.add((stone[0], stone[1] - 1))
             # right
-            if isOnBoard((loc[0], loc[1] + 1)) and board[loc[0]][loc[1] + 1] == 0:
-                liberties.add((loc[0], loc[1] + 1))
-                
+            if isOnBoard((stone[0], stone[1] + 1)) and board[stone[0]][stone[1] + 1] == 0:
+                liberties.add((stone[0], stone[1] + 1))
         libertiesLists.append(liberties)
     return libertiesLists
   
@@ -212,7 +209,7 @@ def twoClosestFriendlyBlocks(board, groups, firstOrderLiberties):
                             break
             if cnt == 2:
                 break
-        print friendlyBlock
+        print(friendlyBlock)
         friendlyBlocks.append(friendlyBlock)
     return friendlyBlocks
 
@@ -244,16 +241,16 @@ def addClosePointsWithDistance(local, loc, dis):
             local.add(p)
 
 def getClosePointsWithDistance(group, dis):
-    local = Set()
+    local = set()
     for loc in group:
         addClosePointsWithDistance(local, loc, 1)
     if dis == 1:
-        return list(local - Set(group))
+        return list(local - set(group))
     elif dis == 2:
-        far = Set()
+        far = set()
         for loc in group:
             addClosePointsWithDistance(far, loc, 2)
-        return list(far - local - Set(group))
+        return list(far - local - set(group))
 
 def getGroupIndexWithLoc(groups, loc):
     for i, group in enumerate(groups):
@@ -284,7 +281,7 @@ def twoClosestAdjacentOppoentBlocks(board, groups, firstOrderLiberties):
                             break
             if cnt == 2:
                 break
-        print opponentBlock
+        print(opponentBlock)
         opponentBlocks.append(opponentBlock)
     return opponentBlocks
 
@@ -305,7 +302,7 @@ def addClosePoints(set, loc):
             set.add(p)
 
 def getLocalPoints(locs):
-    local = Set()
+    local = set()
     for loc in locs:
         addClosePoints(local, loc)
     return local
@@ -446,4 +443,4 @@ def _main():
     showBoard(board)
 
 
-_main()
+#_main()

@@ -2,8 +2,9 @@ import sys
 import os
 import subprocess
 import copy
+import math
 
-import parserFunctions
+from parserFunctions import *
 
 
 
@@ -14,7 +15,7 @@ ARFFHEADER = ("@attribute groupsize NUMERIC"
 
 # This variable controls the number of board samples taken from a
 # given game.
-SAMPLERATE = 1
+SAMPLERATE = 3
 
 
 
@@ -74,7 +75,7 @@ def sgfboard_capture(board, groups, s0, s1):
             s1group = x
 
     # Test to see if the capture actually occurs.
-    if getFirstOrderLiberties(board, s1group) == []:
+    if getFirstOrderLiberties(board, [s1group]) == []:
         sgfboard_group_remove(board, s1group)
 
     # Not strictly necessary.
@@ -141,6 +142,8 @@ def sgfstr_boards_gen(instr):
         elif x == ']':
             if prop[0] != None:
                 #sgfboard_step(boards[-1], groups[-1], prop[0], prop[1], prop[2])
+                print(prop[1])
+                print(prop[2])
                 sgfboard_step(boards[-1], groups, prop[0], prop[1], prop[2])
                 prop = [None, None, None]
         elif x == '(':
@@ -163,9 +166,9 @@ def sgfstr_boards_gen(instr):
         elif ord(x) in range(ord('a'), ord('t')+1):
             if prop[0] != None:
                 if prop[1] == None:
-                    prop[1] = ord(x) - 96
+                    prop[1] = ord(x) - 97
                 elif prop[2] == None:
-                    prop[2] = ord(x) - 96
+                    prop[2] = ord(x) - 97
                 else:
                     sys.exit("Error: Too many coordinates in property.")
 
@@ -184,8 +187,9 @@ def sgfstr_boards_gen(instr):
 
 def sgfstr_sample(instr):
     boards = sgfstr_boards_gen(instr)
-    inc = floor((len(states)-1)/(SAMPLERATE + 1))
-    return [states[x] for x in range(inc,(len(states)-1),inc)]
+    print(len(boards))
+    inc = math.floor((len(boards)-1)/(SAMPLERATE + 1))
+    return [boards[x] for x in range(inc,(len(boards)-1),inc)]
 
 
 
