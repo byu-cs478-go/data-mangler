@@ -10,8 +10,8 @@ from parserFunctions import *
 
 # This header goes at the top of the generated .arff file. It includes
 # the attribute specifiers and tags up to '@data'.
-ARFFHEADER = ("@attribute groupsize NUMERIC"
-              "@data")
+ARFFHEADER = ("@attribute groupsize NUMERIC\n\n"
+              "@data\n")
 
 # This variable controls the number of board samples taken from a
 # given game.
@@ -142,8 +142,6 @@ def sgfstr_boards_gen(instr):
         elif x == ']':
             if prop[0] != None:
                 #sgfboard_step(boards[-1], groups[-1], prop[0], prop[1], prop[2])
-                print(prop[1])
-                print(prop[2])
                 sgfboard_step(boards[-1], groups, prop[0], prop[1], prop[2])
                 prop = [None, None, None]
         elif x == '(':
@@ -187,7 +185,8 @@ def sgfstr_boards_gen(instr):
 
 def sgfstr_sample(instr):
     boards = sgfstr_boards_gen(instr)
-    print(len(boards))
+    # TODO There may be an unexpected trimming effect here that
+    # removes games of insufficient length.
     inc = math.floor((len(boards)-1)/(SAMPLERATE + 1))
     return [boards[x] for x in range(inc,(len(boards)-1),inc)]
 
@@ -199,6 +198,7 @@ def sgfstr_process(instr):
     boards = sgfstr_sample(instr)
     for board in boards:
         groups = getGroups(board)
+        # boarddata = [[getSizes(board, groups)[0]]]
         boarddata = [[x] for x in getSizes(board, groups)]
         data.extend(boarddata)
 
@@ -213,13 +213,13 @@ def arfffile_write(outfile, data):
     # Dump the contents of data to the .arff file.
     for x in data:
         for y in x:
-            outfile.write("\t" + y + ",")
+            outfile.write("\t" + str(y) + ",")
         outfile.write("\n")
 
 
 
-def main():
-    cmd = 'find ' + sys.argv[1] + ' -name \'*.sgf\''
+def main_v(findpath, outpath):
+    cmd = 'find ' + findpath + ' -name \'*.sgf\''
     sp = subprocess.Popen(cmd, universal_newlines=True, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     arffdata = []
@@ -228,5 +228,11 @@ def main():
             with open(inpath, 'r') as infile:
                 arffdata.extend(sgfstr_process(infile.read()))
 
-    with open(sys.args[2], 'w') as arfffile:
+    with open(outpath, 'w') as arfffile:
         arfffile_write(arfffile, arffdata)
+
+
+
+
+def main():
+    main_v(sys.argv[1], sys.argv[2])
