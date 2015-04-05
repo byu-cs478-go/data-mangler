@@ -8,6 +8,14 @@ from parserFunctions import *
 
 
 
+class DataManglerException(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
+
+
 # This header goes at the top of the generated .arff file. It includes
 # the attribute specifiers and tags up to '@data'.
 ARFFHEADER = ("@attribute groupsize NUMERIC\n\n"
@@ -136,14 +144,14 @@ def sgfstr_boards_gen(instr):
         # Syntax characters.
         elif x == ';':
             boards.append(copy.deepcopy(boards[-1]))
-            # groups.append(copy.deepcopy(groups[-1]))
         elif x == '[':
             pass
         elif x == ']':
             if prop[0] != None:
-                #sgfboard_step(boards[-1], groups[-1], prop[0], prop[1], prop[2])
                 sgfboard_step(boards[-1], groups, prop[0], prop[1], prop[2])
                 prop = [None, None, None]
+            elif (prop[1] == None) or (prop[2] == None):
+                raise DataManglerException("Error: Incomplete move specifier.")
         elif x == '(':
             pass
         elif x == ')':
@@ -160,21 +168,28 @@ def sgfstr_boards_gen(instr):
         elif x == 'B':
             if prop[0] == None:
                 prop[0] = -1
-        # TODO Uncertain syntax. Does not handle capital grid coordinates.
+        # TODO Uncertain syntax. Does not handle capital grid
+        # coordinates.
         elif ord(x) in range(ord('a'), ord('t')+1):
             if prop[0] != None:
                 if prop[1] == None:
-                    prop[1] = ord(x) - 97
+                    prop[1] = (ord(x) - 97)%19
                 elif prop[2] == None:
-                    prop[2] = ord(x) - 97
+                    prop[2] = (ord(x) - 97)%19
                 else:
-                    sys.exit("Error: Too many coordinates in property.")
+                    raise DataManglerException("Error: Too many coordinates in property.")
 
-        # Fallthrough for characters we don't recognize or don't care about.
+        # TODO Hack solution, handles the above noted issue with the
+        # WB detector. Overlaps function with the double-else below.
+        elif prop[0] != None:
+            raise DataManglerException("Error: (likely) Un-handleable roperty has W or B in name.")
+
+        # Fallthrough for characters we don't recognize or don't care
+        # about.
         else:
             # Don't recognize (outside of a W or B property).
             if prop[0] == None:
-                sys.exit("Error: Parser unable to cope with file.")
+                raise DataManglerException("Error: Parser unable to cope with file.")
             # Don't care (everywhere else).
             else:
                 pass
@@ -198,8 +213,18 @@ def sgfstr_process(instr):
     boards = sgfstr_sample(instr)
     for board in boards:
         groups = getGroups(board)
+        liberties = getLiberties(board, groups)
         # boarddata = [[getSizes(board, groups)[0]]]
-        boarddata = [[x] for x in getSizes(board, groups)]
+        boarddata = []
+        for x in groups:
+            fol = getFirstOrderLiberties(board, [x])
+            sol = getSecondOrderLiberties(board, [x], fol)
+            tol = getThirdOrderLiberties(board, [x], fol, sol)
+            boarddata.append([x,
+                              getSizes(board, [x])[0],
+                              len(fol[0]),
+                              len(sol[0]),
+                              len(tol[0]),])
         data.extend(boarddata)
 
     return data
@@ -226,7 +251,14 @@ def main_v(findpath, outpath):
     for inpath in sp.communicate()[0].split('\n'):
         if inpath != '':
             with open(inpath, 'r') as infile:
-                arffdata.extend(sgfstr_process(infile.read()))
+                print(inpath + " ")
+                try:
+                    x = sgfstr_process(infile.read())
+                except DataManglerException:
+                    print("failed.")
+                else:
+                    arffdata.extend(x)
+                    print("succeeded.")
 
     with open(outpath, 'w') as arfffile:
         arfffile_write(arfffile, arffdata)
@@ -234,5 +266,5 @@ def main_v(findpath, outpath):
 
 
 
-def main():
-    main_v(sys.argv[1], sys.argv[2])
+#def main():
+main_v(sys.argv[1], sys.argv[2])
