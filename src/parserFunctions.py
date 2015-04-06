@@ -422,19 +422,51 @@ def placeStones(board, black, white):
     for p in white:
         board[p[0]][p[1]] = 1
 
+def findGroup(loc, groups):
+    
+    for group in groups:
+        if loc in group:
+            return group
+    return False
+
+#getting the labels list: dead = 0, alive = 1, draw??
+def getLabels(board, board2):
+    groups = getGroups(board)
+    groups2 = getGroups(board2)
+
+    labels = []
+    for group in groups:
+        endGroup = findGroup(group[0], groups2)
+        if endGroup:
+            print set(group).difference(endGroup)
+            if len(set(group).difference(endGroup)) == 0:
+                labels.append(1)
+            else:
+                labels.append(0)
+        else:
+            labels.append(0)
+    print labels
+
+    return labels
 
 
 def _main():
     board = [[0 for x in range(19)] for x in range(19)] 
 
     black = [(3,6), (4,5), (2,2), (3,2),(4,2), (4,3), (4,4),(4,6),(3,1)]
-    white = [(2,3), (1,2), (3,4), (1,4), (2,5), (0,0)]
+    white = [(2,3), (1,2), (3,4), (1,4), (2,5), (0,0), (10,10)]
     placeStones(board, black, white)
     groups = getGroups(board)
 
-    twoClosestFriendlyBlocks(board, groups, getFirstOrderLiberties(board, groups))
+    black2 = [(4,5), (2,2), (3,2),(4,2), (4,3), (4,4),(4,6),(3,1)]
+    white2 = [(2,3), (1,2), (3,4), (1,4), (2,5), (10,11)]
 
-    showBoard(board)
+    board2 = [[0 for x in range(19)] for x in range(19)] 
+
+    placeStones(board2, black2, white2)
+
+    getLabels(board, board2)
+    # showBoard(board2)
 
 
-#_main()
+_main()
