@@ -218,14 +218,16 @@ def sgfstr_sample(instr):
     # TODO There may be an unexpected trimming effect here that
     # removes games of insufficient length.
     inc = math.floor((len(boards)-1)/(SAMPLERATE + 1))
-    return [boards[x] for x in range(inc,(len(boards)-1),inc)]
+    sample = [boards[x] for x in range(inc,(len(boards)-1),inc)]
+    sample.append(boards[-1])
+    return sample
 
 
 
 def sgfstr_process(instr):
     data = []
 
-    boards = sgfstr_sample(instr)
+    boards = sgfstr_sample(instr)[:-1]
     for board in boards:
         groups = getGroups(board)
         liberties = getLiberties(board, groups)

@@ -1,0 +1,8 @@
+Run the program from the command line as:
+
+'python3 src/main.py inputdirectory outputfile.arff'
+
+Run the program interactively as:
+
+'python3 -i src/main.py'
+'>>> main_v("inputdirectory", "outputfile.arff")'

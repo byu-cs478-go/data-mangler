@@ -3,7 +3,7 @@ import parserFunctions
 
 def test(inpath):
     with open(inpath, 'r') as infile:
-        for x in main.sgfstr_sample(infile.read()):
+        for x in main.sgfstr_sample(infile.read())[:-1]:
             parserFunctions.showBoard(x)
 
 #test("../test/data/honinbo/BloodVomitingGame.sgf")
