@@ -270,7 +270,7 @@ def twoClosestAdjacentOppoentBlocks(board, groups, firstOrderLiberties):
             for loc in localPoints:
                 if getColor(board, loc) == curColor * (-1):
                     oppIndex = getGroupIndexWithLoc(groups, loc)
-                    # print oppIndex
+                    print(oppIndex)
                     if oppIndex not in closeOppGroupIndexes:
                         closeOppGroupIndexes.append(oppIndex)
                         opponentBlock[cnt] = (boundingBoxSize(groups[oppIndex]), len(firstOrderLiberties[oppIndex]))
