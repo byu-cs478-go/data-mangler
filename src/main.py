@@ -18,7 +18,22 @@ class DataManglerException(Exception):
 
 # This header goes at the top of the generated .arff file. It includes
 # the attribute specifiers and tags up to '@data'.
-ARFFHEADER = ("@attribute groupsize NUMERIC\n\n"
+ARFFHEADER = ("@relation go\n\n"
+              "@attribute groupsize NUMERIC\n"
+              "@attribute perimetersize NUMERIC\n"
+              "@attribute opponentsize NUMERIC\n"
+              "@attribute firstorderliberties NUMERIC\n"
+              "@attribute secondorderliberties NUMERIC\n"
+              "@attribute thirdorderliberties NUMERIC\n"
+              "@attribute sharedliberties NUMERIC\n"
+              # "@attribute caob0 NUMERIC\n"
+              # "@attribute caob1 NUMERIC\n"
+              # "@attribute cafb0 NUMERIC\n"
+              # "@attribute cafb1 NUMERIC\n"
+              "@attribute localmajority NUMERIC\n"
+              "@attribute centerofmass0 NUMERIC\n"
+              "@attribute centerofmass1 NUMERIC\n"
+              "@attribute bbsize NUMERIC\n\n"
               "@data\n")
 
 # This variable controls the number of board samples taken from a
@@ -214,17 +229,38 @@ def sgfstr_process(instr):
     for board in boards:
         groups = getGroups(board)
         liberties = getLiberties(board, groups)
-        # boarddata = [[getSizes(board, groups)[0]]]
         boarddata = []
         for x in groups:
+            # TODO There is probably a way to make getPerimeters work
+            # faster.
+            per = getPerimeter(board, x)
             fol = getFirstOrderLiberties(board, [x])
             sol = getSecondOrderLiberties(board, [x], fol)
             tol = getThirdOrderLiberties(board, [x], fol, sol)
-            boarddata.append([x,
-                              getSizes(board, [x])[0],
+            # oadj = twoClosestAdjacentOppoentBlocks(board, [x], [fol])[0]
+            # fadj = twoClosestAdjacentFriendlyBlocks(board, [x], [fol])[0]
+            com = getCenterOfMass(x)
+            boarddata.append([getSizes(board, [x])[0],
+                              len(per),
+                              # TODO Opponents might not work correctly.
+                              # len(per) - [board[x][y] for x,y in per].count(0)
+                              [board[x][y] for x,y in per].count(-board[x[0][0]][x[0][1]]),
                               len(fol[0]),
                               len(sol[0]),
-                              len(tol[0]),])
+                              len(tol[0]),
+                              # TODO Protected liberties.
+                              # TODO Auto-atari liberties.
+                              sharedLiberties(board, [x], fol)[0],
+                              # boundingBoxSize(oadj[0]),
+                              # boundingBoxSize(oadj[1]),
+                              # boundingBoxSize(fadj[0]),
+                              # boundingBoxSize(fadj[1]),
+                              getLocalMajority(board, x),
+                              com[0],
+                              com[1],
+                              boundingBoxSize(x),
+                              # TODO Eyes.
+                          ])
         data.extend(boarddata)
 
     return data
@@ -262,7 +298,6 @@ def main_v(findpath, outpath):
 
     with open(outpath, 'w') as arfffile:
         arfffile_write(arfffile, arffdata)
-
 
 
 

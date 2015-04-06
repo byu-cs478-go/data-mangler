@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-#from sets import Set
 
 
 
@@ -49,29 +48,28 @@ def getSizes(board, groups):
     return sizes
 
 #get perimeters of the groups
-def getPerimeters(board, groups):
-    perimeters = []
-    for i in range(0, len(groups)):
-        perimeter = set()
-        for j in range(0, len(groups[i])):
-            loc = groups[i][j]
-                
-            # up
-            if not (loc[0] + 1, loc[1]) in groups[i]:
-                perimeter.add((loc[0] + 1, loc[1]))
-            # down
-            if not (loc[0] - 1, loc[1]) in groups[i]:
-                perimeter.add((loc[0] - 1, loc[1]))
-            # left
-            if not (loc[0], loc[1] - 1) in groups[i]:
-                perimeter.add((loc[0], loc[1] - 1))
-            # right
-            if not (loc[0], loc[1] + 1) in groups[i]:
-                perimeter.add((loc[0], loc[1] + 1))
-        perimeters.append(len(perimeter))
-    return perimeters
+def getPerimeter(board, group):
+    perimeter = set()
+    color = board[group[0][0]][group[0][1]]
+    for loc in group:
+        # up
+        if loc[0] < 18 and board[loc[0] + 1][loc[1]] != color:
+            perimeter.add((loc[0] + 1, loc[1]))
+        # down
+        if loc[0] > 0 and board[loc[0] - 1][loc[1]] != color:
+            perimeter.add((loc[0] - 1, loc[1]))
+        # left
+        if loc[1] > 0 and board[loc[0]][loc[1] - 1] != color:
+            perimeter.add((loc[0], loc[1] - 1))
+        # right
+        if loc[1] < 18 and board[loc[0]][loc[1] + 1] != color:
+            perimeter.add((loc[0], loc[1] + 1))
+    return perimeter
+
+# def getFirstOrderLiberties(board, group):
+#     return getPerimeter(board, group).count(0)
    
-#get First-order Liberties 
+# get First-order Liberties 
 def getFirstOrderLiberties(board, groups):
     libertiesLists = []    
     for group in groups:
@@ -187,7 +185,7 @@ def sharedLiberties(board, groups, firstOrderLiberties):
     return sharedLiberties
 
 #Two closest friendly blocks
-def twoClosestFriendlyBlocks(board, groups, firstOrderLiberties):
+def twoClosestAdjacentFriendlyBlocks(board, groups, firstOrderLiberties):
     friendlyBlocks = []
     colors = getColors(board, groups)
     for i, group in enumerate(groups):
@@ -351,11 +349,7 @@ def getCenterOfMass(locs):
 
 #Center of masses
 def getCenterOfMasses(groups):
-    centerOfMasses = []
-    for group in groups:
-        centerOfMass = getCenterOfMass(group)
-        centerOfMasses.append(centerOfMass)
-    return centerOfMasses
+    return [getCenterOfMass(x) for x in groups]
 
 def boundingBoxSize(group):
     boundingBoxSize = 0
