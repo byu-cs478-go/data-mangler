@@ -256,7 +256,7 @@ def getGroupIndexWithLoc(groups, loc):
             return i
 
 #Two closest Adjacent opponent blocks
-def twoClosestAdjacentOppoentBlocks(board, groups, firstOrderLiberties):
+def twoClosestAdjacentOpponentBlocks(board, groups, firstOrderLiberties):
     opponentBlocks = []
     colors = getColors(board, groups)
     for i, group in enumerate(groups):
@@ -430,24 +430,45 @@ def findGroup(loc, groups):
     return False
 
 #getting the labels list: dead = 0, alive = 1, draw??
-def getLabels(board, board2):
-    groups = getGroups(board)
-    groups2 = getGroups(board2)
+# def getLabels(board, board2):
+#     groups = getGroups(board)
+#     groups2 = getGroups(board2)
 
-    labels = []
-    for group in groups:
-        endGroup = findGroup(group[0], groups2)
-        if endGroup:
-            print set(group).difference(endGroup)
-            if len(set(group).difference(endGroup)) == 0:
-                labels.append(1)
-            else:
-                labels.append(0)
-        else:
-            labels.append(0)
-    print labels
+#     labels = []
+#     for group in groups:
+#         endGroup = findGroup(group[0], groups2)
+#         if endGroup:
+#             print set(group).difference(endGroup)
+#             if len(set(group).difference(endGroup)) == 0:
+#                 labels.append(1)
+#             else:
+#                 labels.append(0)
+#         else:
+#             labels.append(0)
+#     print labels
 
-    return labels
+#     return labels
+
+
+
+# def getLabelsByGroup(board, board2, group):
+#     groups2 = getGroups(board2)
+
+#     labels = []
+#     for group in groups:
+#         endGroup = findGroup(group[0], groups2)
+#         if endGroup:
+#             print set(group).difference(endGroup)
+#             if len(set(group).difference(endGroup)) == 0:
+#                 labels.append(1)
+#             else:
+#                 labels.append(0)
+#         else:
+#             labels.append(0)
+#     print labels
+
+#     return labels
+
 
 
 def _main():
@@ -465,7 +486,7 @@ def _main():
 
     placeStones(board2, black2, white2)
 
-    getLabels(board, board2)
+    # getLabels(board, board2)
     # showBoard(board2)
 
 

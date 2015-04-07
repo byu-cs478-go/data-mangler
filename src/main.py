@@ -228,6 +228,7 @@ def sgfstr_process(instr):
     data = []
 
     boards = sgfstr_sample(instr)[:-1]
+    finalgroups = getGroups(boards[-1])
     for board in boards:
         groups = getGroups(board)
         liberties = getLiberties(board, groups)
@@ -239,7 +240,7 @@ def sgfstr_process(instr):
             fol = getFirstOrderLiberties(board, [x])
             sol = getSecondOrderLiberties(board, [x], fol)
             tol = getThirdOrderLiberties(board, [x], fol, sol)
-            # oadj = twoClosestAdjacentOppoentBlocks(board, [x], [fol])[0]
+            oadj = twoClosestAdjacentOpponentBlocks(board, groups, [fol])[0]
             # fadj = twoClosestAdjacentFriendlyBlocks(board, [x], [fol])[0]
             com = getCenterOfMass(x)
             boarddata.append([getSizes(board, [x])[0],
@@ -253,8 +254,8 @@ def sgfstr_process(instr):
                               # TODO Protected liberties.
                               # TODO Auto-atari liberties.
                               sharedLiberties(board, [x], fol)[0],
-                              # boundingBoxSize(oadj[0]),
-                              # boundingBoxSize(oadj[1]),
+                              boundingBoxSize(oadj[0]),
+                              boundingBoxSize(oadj[1]),
                               # boundingBoxSize(fadj[0]),
                               # boundingBoxSize(fadj[1]),
                               getLocalMajority(board, x),
@@ -262,6 +263,7 @@ def sgfstr_process(instr):
                               com[1],
                               boundingBoxSize(x),
                               # TODO Eyes.
+                              1 if x in finalgroups else 0
                           ])
         data.extend(boarddata)
 
