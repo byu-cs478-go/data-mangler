@@ -184,30 +184,32 @@ def sharedLiberties(board, groups, firstOrderLiberties):
 
     return sharedLiberties
 
+def twoClosestAdjacentFriendlyBlock(board, group, firstOrderLiberties, groups):
+    friendlyBlock = [(0,0) for x in range(2)] 
+    cnt = 0
+    closefriendlyGroupIndexes = []
+    curColor = getColor(board, group[0])
+    for i in range(1, 3):
+        localPoints = getClosePointsWithDistance(group, i)
+        for loc in localPoints:
+            if getColor(board, loc) == curColor:
+                friendlyIndex = getGroupIndexWithLoc(groups, loc)
+                if friendlyIndex not in closefriendlyGroupIndexes:
+                    closefriendlyGroupIndexes.append(friendlyIndex)
+                    friendlyBlock[cnt] = (boundingBoxSize(groups[friendlyIndex]), len(firstOrderLiberties[friendlyIndex]))
+                    cnt += 1
+                    if cnt == 2:
+                        break
+        if cnt == 2:
+            break
+    return friendlyBlock
+
 #Two closest friendly blocks
 def twoClosestAdjacentFriendlyBlocks(board, groups, firstOrderLiberties):
     friendlyBlocks = []
     colors = getColors(board, groups)
-    for i, group in enumerate(groups):
-        friendlyBlock = [(0,0) for x in range(2)] 
-        cnt = 0
-        closefriendlyGroupIndexes = []
-        curColor = getColor(board, group[0])
-        for j in range(1, 3):
-            localPoints = getClosePointsWithDistance(group, j)
-            # plot(localPoints)
-            for loc in localPoints:
-                if getColor(board, loc) == curColor:
-                    friendlyIndex = getGroupIndexWithLoc(groups, loc)
-                    if friendlyIndex not in closefriendlyGroupIndexes:
-                        closefriendlyGroupIndexes.append(friendlyIndex)
-                        friendlyBlock[cnt] = (boundingBoxSize(groups[friendlyIndex]), len(firstOrderLiberties[friendlyIndex]))
-                        cnt += 1
-                        if cnt == 2:
-                            break
-            if cnt == 2:
-                break
-        print(friendlyBlock)
+    for group in groups:
+        friendlyBlock = twoClosestAdjacentFriendlyBlock(board, group, firstOrderLiberties, groups)
         friendlyBlocks.append(friendlyBlock)
     return friendlyBlocks
 
@@ -255,31 +257,32 @@ def getGroupIndexWithLoc(groups, loc):
         if loc in group:
             return i
 
+def twoClosestAdjacentOppoentBlock(board, group, firstOrderLiberties, groups):
+    opponentBlock = [(0,0) for x in range(2)] 
+    cnt = 0
+    closeOppGroupIndexes = []
+    curColor = getColor(board, group[0])
+    for i in range(1, 3):
+        localPoints = getClosePointsWithDistance(group, i)
+        for loc in localPoints:
+            if getColor(board, loc) == curColor * (-1):
+                oppIndex = getGroupIndexWithLoc(groups, loc)
+                # print(oppIndex)
+                if oppIndex not in closeOppGroupIndexes:
+                    closeOppGroupIndexes.append(oppIndex)
+                    opponentBlock[cnt] = (boundingBoxSize(groups[oppIndex]), len(firstOrderLiberties[oppIndex]))
+                    cnt += 1
+                    if cnt == 2:
+                        break
+        if cnt == 2:
+            break
+    return opponentBlock
+
 #Two closest Adjacent opponent blocks
 def twoClosestAdjacentOppoentBlocks(board, groups, firstOrderLiberties):
     opponentBlocks = []
-    colors = getColors(board, groups)
-    for i, group in enumerate(groups):
-        opponentBlock = [(0,0) for x in range(2)] 
-        cnt = 0
-        closeOppGroupIndexes = []
-        curColor = getColor(board, group[0])
-        for j in range(1, 3):
-            localPoints = getClosePointsWithDistance(group, j)
-            # plot(localPoints)
-            for loc in localPoints:
-                if getColor(board, loc) == curColor * (-1):
-                    oppIndex = getGroupIndexWithLoc(groups, loc)
-                    print(oppIndex)
-                    if oppIndex not in closeOppGroupIndexes:
-                        closeOppGroupIndexes.append(oppIndex)
-                        opponentBlock[cnt] = (boundingBoxSize(groups[oppIndex]), len(firstOrderLiberties[oppIndex]))
-                        cnt += 1
-                        if cnt == 2:
-                            break
-            if cnt == 2:
-                break
-        print(opponentBlock)
+    for group in groups:
+        opponentBlock = twoClosestAdjacentOppoentBlock(board, group, firstOrderLiberties, groups)
         opponentBlocks.append(opponentBlock)
     return opponentBlocks
 
@@ -458,14 +461,17 @@ def _main():
     placeStones(board, black, white)
     groups = getGroups(board)
 
-    black2 = [(4,5), (2,2), (3,2),(4,2), (4,3), (4,4),(4,6),(3,1)]
-    white2 = [(2,3), (1,2), (3,4), (1,4), (2,5), (10,11)]
+    firstOrderLiberties = getFirstOrderLiberties(board, groups)
+    print twoClosestAdjacentFriendlyBlocks(board, groups, firstOrderLiberties)
 
-    board2 = [[0 for x in range(19)] for x in range(19)] 
+    # black2 = [(4,5), (2,2), (3,2),(4,2), (4,3), (4,4),(4,6),(3,1)]
+    # white2 = [(2,3), (1,2), (3,4), (1,4), (2,5), (10,11)]
 
-    placeStones(board2, black2, white2)
+    # board2 = [[0 for x in range(19)] for x in range(19)] 
 
-    getLabels(board, board2)
+    # placeStones(board2, black2, white2)
+
+
     # showBoard(board2)
 
 
