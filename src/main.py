@@ -26,14 +26,19 @@ ARFFHEADER = ("@relation go\n\n"
               "@attribute secondorderliberties NUMERIC\n"
               "@attribute thirdorderliberties NUMERIC\n"
               "@attribute sharedliberties NUMERIC\n"
-              # "@attribute caob0 NUMERIC\n"
-              # "@attribute caob1 NUMERIC\n"
-              # "@attribute cafb0 NUMERIC\n"
-              # "@attribute cafb1 NUMERIC\n"
+              "@attribute caob0size NUMERIC\n"
+              "@attribute caob0liberty NUMERIC\n"
+              "@attribute caob1size NUMERIC\n"
+              "@attribute caob1liberty NUMERIC\n"
+              "@attribute cafb0size NUMERIC\n"
+              "@attribute cafb0liberty NUMERIC\n"
+              "@attribute cafb1size NUMERIC\n"
+              "@attribute cafb1liberty NUMERIC\n"
               "@attribute localmajority NUMERIC\n"
               "@attribute centerofmass0 NUMERIC\n"
               "@attribute centerofmass1 NUMERIC\n"
-              "@attribute bbsize NUMERIC\n\n"
+              "@attribute bbsize NUMERIC\n"
+              "@attribute stillalive NUMERIC\n\n"
               "@data\n")
 
 # This variable controls the number of board samples taken from a
@@ -231,33 +236,38 @@ def sgfstr_process(instr):
     finalgroups = getGroups(boards[-1])
     for board in boards:
         groups = getGroups(board)
-        liberties = getLiberties(board, groups)
+        #liberties = getLiberties(board, groups)
+        fols = getFirstOrderLiberties(board, groups)
+        sols = getSecondOrderLiberties(board, groups, fols)
+        tols = getThirdOrderLiberties(board, groups, fols, sols)
+        slibs = sharedLiberties(board, groups, fols)
         boarddata = []
-        for x in groups:
+        for i,x in enumerate(groups):
             # TODO There is probably a way to make getPerimeters work
             # faster.
             per = getPerimeter(board, x)
-            fol = getFirstOrderLiberties(board, [x])
-            sol = getSecondOrderLiberties(board, [x], fol)
-            tol = getThirdOrderLiberties(board, [x], fol, sol)
-            oadj = twoClosestAdjacentOpponentBlocks(board, groups, [fol])[0]
-            # fadj = twoClosestAdjacentFriendlyBlocks(board, [x], [fol])[0]
+            oadj = twoClosestAdjacentOpponentBlock(board, x, fols, groups)
+            fadj = twoClosestAdjacentFriendlyBlock(board, x, fols, groups)
             com = getCenterOfMass(x)
             boarddata.append([getSizes(board, [x])[0],
                               len(per),
                               # TODO Opponents might not work correctly.
                               # len(per) - [board[x][y] for x,y in per].count(0)
                               [board[x][y] for x,y in per].count(-board[x[0][0]][x[0][1]]),
-                              len(fol[0]),
-                              len(sol[0]),
-                              len(tol[0]),
+                              len(fols[i]),
+                              len(sols[i]),
+                              len(tols[i]),
                               # TODO Protected liberties.
                               # TODO Auto-atari liberties.
-                              sharedLiberties(board, [x], fol)[0],
-                              boundingBoxSize(oadj[0]),
-                              boundingBoxSize(oadj[1]),
-                              # boundingBoxSize(fadj[0]),
-                              # boundingBoxSize(fadj[1]),
+                              slibs[i],
+                              oadj[0][0],
+                              oadj[0][1],
+                              oadj[1][0],
+                              oadj[1][1],
+                              fadj[0][0],
+                              fadj[0][1],
+                              fadj[1][0],
+                              fadj[1][1],
                               getLocalMajority(board, x),
                               com[0],
                               com[1],
