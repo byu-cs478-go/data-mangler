@@ -38,7 +38,7 @@ ARFFHEADER = ("@relation go\n\n"
               "@attribute centerofmass0 NUMERIC\n"
               "@attribute centerofmass1 NUMERIC\n"
               "@attribute bbsize NUMERIC\n"
-              "@attribute stillalive NUMERIC\n\n"
+              "@attribute class {alive, dead}\n\n"
               "@data\n")
 
 # This variable controls the number of board samples taken from a
@@ -249,6 +249,12 @@ def sgfstr_process(instr):
             oadj = twoClosestAdjacentOpponentBlock(board, x, fols, groups)
             fadj = twoClosestAdjacentFriendlyBlock(board, x, fols, groups)
             com = getCenterOfMass(x)
+
+            xset = set(x)
+            label = False
+            for y in finalgroups:
+                label = xset.issubset(set(y)) or label
+
             boarddata.append([getSizes(board, [x])[0],
                               len(per),
                               # TODO Opponents might not work correctly.
@@ -273,7 +279,7 @@ def sgfstr_process(instr):
                               com[1],
                               boundingBoxSize(x),
                               # TODO Eyes.
-                              1 if x in finalgroups else 0
+                              'alive' if label else 'dead'
                           ])
         data.extend(boarddata)
 
