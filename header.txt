@@ -1,0 +1,24 @@
+@relation go
+
+@attribute groupsize NUMERIC
+@attribute perimetersize NUMERIC
+@attribute opponentsize NUMERIC
+@attribute firstorderliberties NUMERIC
+@attribute secondorderliberties NUMERIC
+@attribute thirdorderliberties NUMERIC
+@attribute sharedliberties NUMERIC
+@attribute caob0size NUMERIC
+@attribute caob0liberty NUMERIC
+@attribute caob1size NUMERIC
+@attribute caob1liberty NUMERIC
+@attribute cafb0size NUMERIC
+@attribute cafb0liberty NUMERIC
+@attribute cafb1size NUMERIC
+@attribute cafb1liberty NUMERIC
+@attribute localmajority NUMERIC
+@attribute centerofmass0 NUMERIC
+@attribute centerofmass1 NUMERIC
+@attribute bbsize NUMERIC
+@attribute class {alive, dead}
+
+@data
